@@ -1,0 +1,116 @@
+<!-- orders.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="honeybaked_favicon.png">
+<title>Honeybaked Orders</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    min-height:100vh;
+    background:linear-gradient(135deg,#fffaf0,#fff);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:900px;
+    background:#fff;
+    padding:50px;
+    border-radius:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.08);
+    text-align:center;
+}
+
+.logo{
+    width:140px;
+    margin-bottom:20px;
+}
+
+h1{
+    font-size:3rem;
+    color:#d4af37;
+    margin-bottom:15px;
+}
+
+p{
+    color:#666;
+    margin-bottom:40px;
+}
+
+.buttons{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+}
+
+.btn{
+    text-decoration:none;
+    background:#d4af37;
+    color:#000;
+    padding:40px 20px;
+    border-radius:25px;
+    font-size:1.5rem;
+    font-weight:bold;
+    transition:.3s;
+    box-shadow:0 10px 25px rgba(212,175,55,.25);
+}
+
+.btn:hover{
+    transform:translateY(-5px);
+}
+
+@media(max-width:768px){
+    .buttons{
+        grid-template-columns:1fr;
+    }
+
+    h1{
+        font-size:2rem;
+    }
+
+    .btn{
+        font-size:1.2rem;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <img src="LOGO.jpg" class="logo">
+
+    <h1>Honeybaked</h1>
+
+    <p>Select ordering category</p>
+
+    <div class="buttons">
+
+        <a href="CustomCakes.html" class="btn">
+            Custom Cakes
+        </a>
+
+        <a href="ShopAvailableProducts.html" class="btn">
+            Shop Available Products
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

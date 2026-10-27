@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="honeybaked_favicon.png">
+<title>Honeybaked — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --gold: #d4af37;
+    --gold-light: #f0d97a;
+    --bg: #0f0e0b;
+    --surface: #1a1814;
+    --surface2: #231f18;
+    --surface3: #2e2920;
+    --border: rgba(212,175,55,0.18);
+    --text: #f5f0e8;
+    --muted: #8a8070;
+    --danger: #e05252;
+    --success: #52b788;
+    --sold-out: #ff6b6b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+.header {
+    background:var(--surface); border-bottom:1px solid var(--border);
+    padding:18px 32px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:100;
+}
+.logo { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--gold); }
+.logo span { color:var(--muted); font-size:0.8rem; font-family:'DM Sans',sans-serif; display:block; font-weight:300; }
+.header-right { display:flex; align-items:center; gap:14px; }
+.save-btn {
+    background:var(--gold); color:#0f0e0b; border:none; padding:10px 24px;
+    border-radius:50px; font-weight:600; font-size:0.9rem; cursor:pointer;
+    transition:0.2s; font-family:'DM Sans',sans-serif;
+}
+.save-btn:hover { background:var(--gold-light); }
+.save-btn:disabled { background:var(--muted); cursor:not-allowed; }
+.save-notice { font-size:0.8rem; color:var(--success); opacity:0; transition:0.4s; }
+.save-notice.show { opacity:1; }
+
+.container { max-width:1100px; margin:auto; padding:32px 20px; }
+
+.page-tabs {
+    display:flex; margin-bottom:28px;
+    background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;
+}
+.page-tab {
+    flex:1; padding:14px; text-align:center; cursor:pointer; font-size:0.9rem;
+    font-family:'DM Sans',sans-serif; color:var(--muted); border:none; background:transparent;
+    transition:0.2s; font-weight:500;
+}
+.page-tab.active { background:var(--gold); color:#0f0e0b; font-weight:700; }
+
+.stats {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:14px; margin-bottom:28px;
+}
+.stat-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:18px; text-align:center;
+}
+.stat-card .num { font-family:'Playfair Display',serif; font-size:1.9rem; color:var(--gold); }
+.stat-card .lbl { font-size:0.72rem; color:var(--muted); margin-top:5px; text-transform:uppercase; letter-spacing:1px; }
+
+.tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.tab {
+    padding:8px 16px; border-radius:50px; border:1px solid var(--border);
+    background:transparent; color:var(--muted); font-size:0.82rem; cursor:pointer;
+    font-family:'DM Sans',sans-serif; transition:0.2s;
+}
+.tab:hover { border-color:var(--gold); color:var(--gold); }
+.tab.active { background:var(--gold); color:#0f0e0b; border-color:var(--gold); font-weight:600; }
+
+.search-bar {
+    width:100%; padding:12px 18px; border-radius:12px; border:1px solid var(--border);
+    background:var(--surface); color:var(--text); font-size:0.92rem;
+    font-family:'DM Sans',sans-serif; margin-bottom:22px; outline:none; transition:0.2s;
+}
+.search-bar:focus { border-color:var(--gold); }
+.search-bar::placeholder { color:var(--muted); }
+
+.section-label {
+    font-family:'Playfair Display',serif; font-size:1.05rem; color:var(--gold);
+    margin-bottom:12px; padding-bottom:7px; border-bottom:1px solid var(--border);
+}
+.items-grid { display:flex; flex-direction:column; gap:10px; margin-bottom:30px; }
+
+.item-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:14px 18px; display:flex;
+    align-items:center; gap:14px; transition:0.2s;
+}
+.item-card:hover { border-color:rgba(212,175,55,0.35); }
+.item-card.sold-out-card { opacity:0.5; border-color:rgba(224,82,82,0.3); }
+
+.item-thumb {
+    width:60px; height:60px; border-radius:10px; object-fit:cover;
+    border:1px solid var(--border); flex-shrink:0; background:var(--surface2);
+}
+
+.item-name { flex:1; font-size:0.93rem; font-weight:500; line-height:1.4; min-width:0; }
+.item-category-tag { font-size:0.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; margin-top:2px; }
+
+.price-input {
+    width:100px; padding:8px 10px; border-radius:10px; border:1px solid var(--border);
+    background:var(--surface2); color:var(--gold); font-size:1rem; font-weight:600;
+    font-family:'DM Sans',sans-serif; text-align:right; outline:none; transition:0.2s;
+}
+.price-input:focus { border-color:var(--gold); background:var(--surface3); }
+.price-prefix { color:var(--muted); font-size:0.88rem; }
+
+.sold-out-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; min-width:62px; }
+.sold-out-wrap .lbl-txt { font-size:0.65rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; }
+.toggle { position:relative; width:46px; height:25px; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-slider {
+    position:absolute; inset:0; background:var(--surface3); border-radius:50px;
+    border:1px solid var(--border); cursor:pointer; transition:0.25s;
+}
+.toggle-slider::after {
+    content:''; position:absolute; width:17px; height:17px; border-radius:50%;
+    background:var(--muted); top:3px; left:3px; transition:0.25s;
+}
+.toggle input:checked + .toggle-slider { background:rgba(224,82,82,0.2); border-color:var(--sold-out); }
+.toggle input:checked + .toggle-slider::after { transform:translateX(21px); background:var(--sold-out); }
+
+.delete-btn {
+    background:rgba(224,82,82,0.15); border:1px solid rgba(224,82,82,0.3);
+    color:var(--danger); padding:7px 12px; border-radius:8px; cursor:pointer;
+    font-size:0.8rem; font-family:'DM Sans',sans-serif; transition:0.2s; white-space:nowrap;
+}
+.delete-btn:hover { background:var(--danger); color:#fff; }
+
+/* ADD PRODUCT FORM */
+.add-form {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:24px; margin-bottom:28px;
+}
+.add-form h3 { color:var(--gold); font-size:1rem; margin-bottom:18px; font-family:'Playfair Display',serif; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.form-group { display:flex; flex-direction:column; gap:6px; }
+.form-group label { font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; }
+.form-group input, .form-group select {
+    padding:10px 14px; border-radius:10px; border:1px solid var(--border);
+    background:var(--surface2); color:var(--text); font-family:'DM Sans',sans-serif;
+    font-size:0.9rem; outline:none; transition:0.2s;
+}
+.form-group input:focus, .form-group select:focus { border-color:var(--gold); }
+.form-group select option { background:var(--surface2); }
+
+/* IMAGE UPLOAD */
+.upload-area {
+    border:2px dashed var(--border); border-radius:12px; padding:20px;
+    text-align:center; cursor:pointer; transition:0.2s; margin-bottom:14px;
+    position:relative;
+}
+.upload-area:hover { border-color:var(--gold); }
+.upload-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.upload-preview {
+    width:80px; height:80px; border-radius:10px; object-fit:cover;
+    margin:0 auto 8px; display:none;
+}
+.upload-preview.show { display:block; }
+.upload-text { font-size:0.85rem; color:var(--muted); }
+.upload-progress {
+    height:4px; background:var(--surface3); border-radius:2px; margin-top:10px; display:none;
+}
+.upload-progress-bar { height:100%; background:var(--gold); border-radius:2px; transition:width 0.3s; width:0; }
+
+.add-product-btn {
+    width:100%; padding:12px; background:var(--gold); color:#0f0e0b;
+    border:none; border-radius:10px; font-weight:600; font-size:0.95rem;
+    cursor:pointer; font-family:'DM Sans',sans-serif; transition:0.2s;
+}
+.add-product-btn:hover { background:var(--gold-light); }
+.add-product-btn:disabled { background:var(--muted); cursor:not-allowed; }
+
+.sync-bar {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:14px 20px; margin-bottom:24px; display:flex; align-items:center; gap:12px;
+    font-size:0.85rem; color:var(--muted);
+}
+.sync-dot { width:8px; height:8px; border-radius:50%; background:var(--success); animation:pulse 2s infinite; flex-shrink:0; }
+.sync-dot.loading { background:var(--gold); animation:none; }
+.sync-dot.error { background:var(--danger); animation:none; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.toast {
+    position:fixed; bottom:26px; right:26px; background:var(--surface2);
+    border:1px solid var(--gold); color:var(--gold); padding:13px 22px;
+    border-radius:12px; font-size:0.88rem; font-weight:500;
+    opacity:0; transform:translateY(10px); pointer-events:none; transition:0.3s; z-index:999;
+}
+.toast.show { opacity:1; transform:translateY(0); }
+
+.page-section { display:none; }
+.page-section.active { display:block; }
+
+@media(max-width:600px){
+    .header{padding:13px 14px;}
+    .container{padding:18px 12px;}
+    .form-row{grid-template-columns:1fr;}
+    .item-card{flex-wrap:wrap;gap:10px;}
+    .price-input{width:88px;}
+    .logo span{display:none;}
+    .page-tab{font-size:0.78rem;padding:11px 6px;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo">
+        Honeybaked
+        <span>Admin Panel</span>
+    </div>
+    <div class="header-right">
+        <span class="save-notice" id="saveNotice">✓ Saved!</span>
+        <button class="save-btn" id="saveBtn" onclick="saveAll()">Save Changes</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="page-tabs">
+        <button class="page-tab active" onclick="switchPage('custom')">Custom Cakes</button>
+        <button class="page-tab" onclick="switchPage('shop')">Shop Products</button>
+    </div>
+
+    <div class="sync-bar">
+        <span class="sync-dot" id="syncDot"></span>
+        <span id="syncLabel">Connecting to database...</span>
+    </div>
+
+    <div class="stats" id="statsBar"></div>
+
+    <!-- CUSTOM CAKES PAGE -->
+    <div class="page-section active" id="page-custom">
+
+        <!-- ADD PRODUCT FORM -->
+        <div class="add-form">
+            <h3>➕ Add New Custom Cake Product</h3>
+            <div class="upload-area" id="uploadAreaCustom">
+                <input type="file" accept="image/*" onchange="handleImageUpload(this,'custom')">
+                <img class="upload-preview" id="previewCustom">
+                <div class="upload-text" id="uploadTextCustom">📷 Click to upload product image</div>
+                <div class="upload-progress" id="progressCustom">
+                    <div class="upload-progress-bar" id="progressBarCustom"></div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="newNameCustom" placeholder="e.g. 2 Tier Wedding Cake">
+                </div>
+                <div class="form-group">
+                    <label>Price (₱)</label>
+                    <input type="number" id="newPriceCustom" placeholder="e.g. 2900" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="newDescCustom" placeholder="e.g. Choco moist, whipping icing">
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label>Category</label>
+                <select id="newCategoryCustom">
+                    <option value="wedding">Wedding Cakes</option>
+                    <option value="birthday">Birthday Cakes</option>
+                    <option value="christening">Christening Cakes</option>
+                    <option value="pastries">Pastries</option>
+                    <option value="fathersday">Father's Day Cakes</option>
+                    <option value="debut">Debut Cakes</option>
+                    <option value="teachersday">Teacher's Day Cakes</option>
+                    <option value="christmas">Christmas Cakes</option>
+                    <option value="newyear">New Year's Cakes</option>
+                    <option value="valentines">Valentines Cakes</option>
+                    <option value="mothersday">Mother's Day Cakes</option>
+                    <option value="graduation">Graduation Cakes</option>
+                </select>
+            </div>
+            <button class="add-product-btn" id="addBtnCustom" onclick="addProduct('custom')">➕ Add Product</button>
+        </div>
+
+        <input class="search-bar" type="text" id="searchCustom" placeholder="🔍  Search custom cakes..." oninput="renderCustom()">
+        <div class="tabs" id="tabsCustom"></div>
+        <div id="sectionsCustom"></div>
+    </div>
+
+    <!-- SHOP PAGE -->
+    <div class="page-section" id="page-shop">
+
+        <!-- ADD PRODUCT FORM -->
+        <div class="add-form">
+            <h3>➕ Add New Shop Product</h3>
+            <div class="upload-area" id="uploadAreaShop">
+                <input type="file" accept="image/*" onchange="handleImageUpload(this,'shop')">
+                <img class="upload-preview" id="previewShop">
+                <div class="upload-text" id="uploadTextShop">📷 Click to upload product image</div>
+                <div class="upload-progress" id="progressShop">
+                    <div class="upload-progress-bar" id="progressBarShop"></div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="newNameShop" placeholder="e.g. Matcha Latte">
+                </div>
+                <div class="form-group">
+                    <label>Price (₱)</label>
+                    <input type="number" id="newPriceShop" placeholder="e.g. 68" min="0">
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label>Category</label>
+                <select id="newCategoryShop">
+                    <option value="bento">Bento Cakes</option>
+                    <option value="drip">Drip Cakes</option>
+                    <option value="vintage">Vintage Cakes</option>
+                    <option value="coffee">Coffee</option>
+                    <option value="noncoffee">Non Coffee</option>
+                </select>
+            </div>
+            <button class="add-product-btn" id="addBtnShop" onclick="addProduct('shop')">➕ Add Product</button>
+        </div>
+
+        <input class="search-bar" type="text" id="searchShop" placeholder="🔍  Search shop products..." oninput="renderShop()">
+        <div class="tabs" id="tabsShop"></div>
+        <div id="sectionsShop"></div>
+    </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══ CLOUDINARY CONFIG ═══ */
+const CLOUD_NAME    = 'ddrxeqaxh';
+const UPLOAD_PRESET = 'honeybaked_uploads';
+
+/* ═══ API ENDPOINTS (FIXED - separate bins) ═══ */
+const SHOP_API   = '/api/menu?type=shop';
+const CUSTOM_API = '/api/menu?type=custom';
+
+/* ═══ CATEGORY LABELS ═══ */
+const CUSTOM_CAT_LABELS = {
+    wedding:'Wedding Cakes', birthday:'Birthday Cakes',
+    christening:'Christening Cakes', pastries:'Pastries',
+    fathersday:"Father's Day Cakes", debut:'Debut Cakes', 
+    teachersday:'Teachers Day Cakes', christmas:'Christmas Cakes',
+    newyear:"New Year's Cakes", valentines:'Valentines Cakes',
+    mothersday:"Mother's Day Cakes", graduation:'Graduation Cakes',
+};
+
+const SHOP_CAT_LABELS = {
+    bento:'Bento Cakes', drip:'Drip Cakes', vintage:'Vintage Cakes',
+    coffee:'Coffee', noncoffee:'Non Coffee',
+};
+
+/* ═══ STATE ═══ */
+let menuCustom = [];
+let menuShop   = [];
+let activeTabCustom = 'all';
+let activeTabShop   = 'all';
+let currentPage = 'custom';
+let uploadedImageUrl = { custom: '', shop: '' };
+
+/* ═══ LOAD FROM API (SEPARATE CALLS) ═══ */
+async function loadFromAPI(){
+    setSyncStatus('loading','Connecting to database...');
+    try {
+        // Load Custom Cakes (49 items with descriptions)
+        const customRes = await fetch(CUSTOM_API);
+        const customData = await customRes.json();
+        menuCustom = Array.isArray(customData) ? customData : (customData.custom || customData.shop || []);
+        
+        // Load Shop Products (23 items)
+        const shopRes = await fetch(SHOP_API);
+        const shopData = await shopRes.json();
+        menuShop = Array.isArray(shopData) ? shopData : (shopData.shop || []);
+        
+        setSyncStatus('ok',`Connected — Custom: ${menuCustom.length} items | Shop: ${menuShop.length} items`);
+    } catch(e) {
+        console.error('Load error:', e);
+        menuCustom = [];
+        menuShop   = [];
+        setSyncStatus('error','Cannot connect to database. Check API endpoint.');
+    }
+    updateStats();
+    buildTabs('tabsCustom',CUSTOM_CAT_LABELS,activeTabCustom,'setTabCustom');
+    buildTabs('tabsShop',  SHOP_CAT_LABELS,  activeTabShop,  'setTabShop');
+    renderCustom();
+    renderShop();
+}
+
+/* ═══ SAVE TO API (SEPARATE PUT REQUESTS) ═══ */
+async function saveAll(){
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.textContent = 'Saving...';
+    setSyncStatus('loading','Saving...');
+
+    let customSuccess = false;
+    let shopSuccess = false;
+
+    try {
+        // Save Custom Cakes
+        const customRes = await fetch(CUSTOM_API, {
+            method:'PUT',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(menuCustom),
+        });
+        customSuccess = customRes.ok;
+
+        // Save Shop Products
+        const shopRes = await fetch(SHOP_API, {
+            method:'PUT',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(menuShop),
+        });
+        shopSuccess = shopRes.ok;
+
+        if(customSuccess && shopSuccess) {
+            setSyncStatus('ok','Saved! All devices updated.');
+            showToast('✓ Saved! All devices updated.');
+            const n = document.getElementById('saveNotice');
+            n.classList.add('show'); setTimeout(()=>n.classList.remove('show'),2500);
+            updateStats();
+            renderCustom(); renderShop();
+        } else {
+            throw new Error('Save failed');
+        }
+    } catch(e) {
+        setSyncStatus('error','Save failed.');
+        showToast('❌ Save failed. Try again.');
+    }
+    btn.disabled=false; btn.textContent='💾 Save Changes';
+}
+
+/* ═══ IMAGE UPLOAD TO CLOUDINARY ═══ */
+async function handleImageUpload(input, page){
+    const file = input.files[0];
+    if(!file) return;
+
+    const preview     = document.getElementById('preview'    + (page==='custom'?'Custom':'Shop'));
+    const uploadText  = document.getElementById('uploadText' + (page==='custom'?'Custom':'Shop'));
+    const progressDiv = document.getElementById('progress'   + (page==='custom'?'Custom':'Shop'));
+    const progressBar = document.getElementById('progressBar'+ (page==='custom'?'Custom':'Shop'));
+
+    preview.src = URL.createObjectURL(file);
+    preview.classList.add('show');
+    uploadText.textContent = 'Uploading...';
+    progressDiv.style.display = 'block';
+    progressBar.style.width = '30%';
+
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', UPLOAD_PRESET);
+
+        progressBar.style.width = '60%';
+
+        const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+            method: 'POST',
+            body: formData,
+        });
+        const data = await res.json();
+
+        progressBar.style.width = '100%';
+        uploadedImageUrl[page] = data.secure_url;
+        uploadText.textContent = '✓ Image uploaded!';
+        setTimeout(()=>{ progressDiv.style.display='none'; progressBar.style.width='0'; },1000);
+
+    } catch(e) {
+        uploadText.textContent = '❌ Upload failed. Try again.';
+        progressDiv.style.display = 'none';
+        showToast('❌ Image upload failed.');
+    }
+}
+
+/* ═══ ADD PRODUCT ═══ */
+async function addProduct(page){
+    const isCustom = page === 'custom';
+    const name     = document.getElementById('newName'    + (isCustom?'Custom':'Shop')).value.trim();
+    const price    = parseInt(document.getElementById('newPrice'   + (isCustom?'Custom':'Shop')).value);
+    const category = document.getElementById('newCategory'+ (isCustom?'Custom':'Shop')).value;
+    const imageUrl = uploadedImageUrl[page];
+    const desc = document.getElementById('newDesc' + (isCustom?'Custom':'Shop'))?.value.trim() || '';
+
+    if(!name)     { showToast('⚠️ Please enter a product name.'); return; }
+    if(!price||price<0) { showToast('⚠️ Please enter a valid price.'); return; }
+    if(!imageUrl) { showToast('⚠️ Please upload an image first.'); return; }
+
+    const newItem = {
+        id:      page + '_' + Date.now(),
+        category: category,
+        name:    name,
+        price:   price,
+        description: desc,
+        soldOut: false,
+        image:   imageUrl,
+    };
+
+    if(isCustom) menuCustom.push(newItem);
+    else         menuShop.push(newItem);
+
+    document.getElementById('newName'    + (isCustom?'Custom':'Shop')).value = '';
+    document.getElementById('newPrice'   + (isCustom?'Custom':'Shop')).value = '';
+    if(isCustom) document.getElementById('newDescCustom').value = '';
+    const preview    = document.getElementById('preview'   + (isCustom?'Custom':'Shop'));
+    const uploadText = document.getElementById('uploadText'+ (isCustom?'Custom':'Shop'));
+    preview.classList.remove('show');
+    uploadText.textContent = '📷 Click to upload product image';
+    uploadedImageUrl[page] = '';
+
+    await saveAll();
+    showToast('✅ Product added!');
+}
+
+/* ═══ DELETE PRODUCT ═══ */
+async function deleteProduct(id, page){
+    if(!confirm('Delete this product? Dili na ma-undo.')) return;
+    if(page==='custom') menuCustom = menuCustom.filter(m=>m.id!==id);
+    else                menuShop   = menuShop.filter(m=>m.id!==id);
+    await saveAll();
+    showToast('🗑️ Product deleted.');
+}
+
+/* ═══ SYNC STATUS ═══ */
+function setSyncStatus(type,msg){
+    const dot=document.getElementById('syncDot');
+    const lbl=document.getElementById('syncLabel');
+    dot.className='sync-dot'+(type==='loading'?' loading':type==='error'?' error':'');
+    lbl.textContent=msg;
+}
+
+/* ═══ PAGE SWITCH ═══ */
+function switchPage(page){
+    currentPage=page;
+    document.querySelectorAll('.page-tab').forEach((t,i)=>{
+        t.classList.toggle('active',(i===0&&page==='custom')||(i===1&&page==='shop'));
+    });
+    document.getElementById('page-custom').classList.toggle('active',page==='custom');
+    document.getElementById('page-shop').classList.toggle('active',  page==='shop');
+    updateStats();
+}
+
+/* ═══ STATS ═══ */
+function updateStats(){
+    const menu    = currentPage==='custom'?menuCustom:menuShop;
+    const total   = menu.length;
+    const soldOut = menu.filter(m=>m.soldOut).length;
+    const avg     = total ? Math.round(menu.reduce((a,m)=>a+m.price,0)/total) : 0;
+    document.getElementById('statsBar').innerHTML=`
+        <div class="stat-card"><div class="num">${total}</div><div class="lbl">Total Items</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--success)">${total-soldOut}</div><div class="lbl">Available</div></div>
+        <div class="stat-card"><div class="num" style="color:var(--sold-out)">${soldOut}</div><div class="lbl">Sold Out</div></div>
+        <div class="stat-card"><div class="num">₱${avg.toLocaleString()}</div><div class="lbl">Avg Price</div></div>
+    `;
+}
+
+/* ═══ TABS ═══ */
+function buildTabs(containerId,catLabels,activeTab,setFn){
+    const cats=['all',...Object.keys(catLabels)];
+    const container = document.getElementById(containerId);
+    if(container) {
+        container.innerHTML=cats.map(c=>`
+            <button class="tab ${c===activeTab?'active':''}" onclick="${setFn}('${c}')">
+                ${c==='all'?'All Items':catLabels[c]}
+            </button>`).join('');
+    }
+}
+function setTabCustom(cat){activeTabCustom=cat;buildTabs('tabsCustom',CUSTOM_CAT_LABELS,activeTabCustom,'setTabCustom');renderCustom();}
+function setTabShop(cat){activeTabShop=cat;buildTabs('tabsShop',SHOP_CAT_LABELS,activeTabShop,'setTabShop');renderShop();}
+
+/* ═══ RENDER ═══ */
+function renderSection(menu,catLabels,activeTab,searchId,containerId,page){
+    const q=document.getElementById(searchId)?.value.toLowerCase() || '';
+    const cats=activeTab==='all'?Object.keys(catLabels):[activeTab];
+    let html='';
+    cats.forEach(cat=>{
+        const items=menu.filter(m=>m.category===cat&&(!q||m.name.toLowerCase().includes(q)));
+        if(!items.length) return;
+        html+=`<div class="section-label">${catLabels[cat]}</div><div class="items-grid">`;
+        items.forEach(item=>{
+            const badge=item.soldOut?`<span style="font-size:0.68rem;background:rgba(224,82,82,0.18);color:var(--sold-out);padding:2px 9px;border-radius:50px;margin-left:8px;font-weight:600;">SOLD OUT</span>`:'';
+            const imgSrc = item.image || '';
+            html+=`
+            <div class="item-card ${item.soldOut?'sold-out-card':''}" id="card-${item.id}">
+                ${imgSrc ? `<img class="item-thumb" src="${imgSrc}" alt="${item.name}">` : `<div class="item-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.5rem;">🎂</div>`}
+                <div style="flex:1;min-width:0;">
+                    <div class="item-name">${escapeHtml(item.name)}${badge}</div>
+                    <div class="item-category-tag">${catLabels[item.category]||item.category}</div>
+                    ${item.description ? `<div style="font-size:0.7rem;color:var(--muted);margin-top:4px;">${escapeHtml(item.description)}</div>` : ''}
+                </div>
+                <span class="price-prefix">₱</span>
+                <input class="price-input" type="number" min="0" value="${item.price}" data-id="${item.id}" onchange="updatePrice('${item.id}',this.value)">
+                <div class="sold-out-wrap">
+                    <label class="lbl-txt">Sold Out</label>
+                    <label class="toggle">
+                        <input type="checkbox" ${item.soldOut?'checked':''} onchange="toggleSoldOut('${item.id}',this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <button class="delete-btn" onclick="deleteProduct('${item.id}','${page}')">🗑️ Delete</button>
+            </div>`;
+        });
+        html+=`</div>`;
+    });
+    if(!html) html=`<p style="color:var(--muted);text-align:center;padding:40px 0;">Walay products. Add product sa taas! ☝️</p>`;
+    const container = document.getElementById(containerId);
+    if(container) container.innerHTML=html;
+}
+
+function escapeHtml(str) {
+    if(!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if(m === '&') return '&amp;';
+        if(m === '<') return '&lt;';
+        if(m === '>') return '&gt;';
+        return m;
+    });
+}
+
+function renderCustom(){renderSection(menuCustom,CUSTOM_CAT_LABELS,activeTabCustom,'searchCustom','sectionsCustom','custom');}
+function renderShop(){renderSection(menuShop,SHOP_CAT_LABELS,activeTabShop,'searchShop','sectionsShop','shop');}
+
+/* ═══ UPDATES ═══ */
+function updatePrice(id,val){
+    const item=menuCustom.find(m=>m.id===id)||menuShop.find(m=>m.id===id);
+    if(!item) return;
+    const n=parseInt(val);
+    if(isNaN(n)||n<0){showToast('⚠️ Invalid price');return;}
+    item.price=n;
+}
+function toggleSoldOut(id,checked){
+    const item=menuCustom.find(m=>m.id===id)||menuShop.find(m=>m.id===id);
+    if(!item) return;
+    item.soldOut=checked;
+    const card=document.getElementById('card-'+id);
+    if(card){
+        card.classList.toggle('sold-out-card',checked);
+        const nameDiv=card.querySelector('.item-name');
+        const old=nameDiv.querySelector('span');if(old)old.remove();
+        if(checked)nameDiv.insertAdjacentHTML('beforeend',`<span style="font-size:0.68rem;background:rgba(224,82,82,0.18);color:var(--sold-out);padding:2px 9px;border-radius:50px;margin-left:8px;font-weight:600;">SOLD OUT</span>`);
+    }
+    updateStats();
+}
+
+/* ═══ TOAST ═══ */
+function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ═══ INIT ═══ */
+loadFromAPI();
+</script>
+</body>
+</html>

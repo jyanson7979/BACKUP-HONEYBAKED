@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="honeybaked_favicon.png">
+<title>Custom Cakes - Honeybaked</title>
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{ font-family:Arial,sans-serif; background:linear-gradient(135deg,#fffaf0,#fff); color:#333; }
+.container{ max-width:900px; margin:auto; padding:40px 20px; }
+h1{ text-align:center; color:#d4af37; margin-bottom:10px; font-size:2.5rem; }
+.subtitle{ text-align:center; color:#666; margin-bottom:30px; }
+.filter{ margin-bottom:30px; }
+select{ width:100%; padding:15px; border-radius:14px; border:2px solid #eee; font-size:1rem; }
+.category{ background:#fff; border-radius:20px; padding:25px; margin-bottom:25px; box-shadow:0 10px 30px rgba(0,0,0,.06); }
+.category h2{ color:#d4af37; margin-bottom:15px; }
+.menu-item{ background:#fafafa; padding:20px; border-radius:16px; margin-bottom:15px; position:relative; }
+.menu-item.sold-out-item{ opacity:0.55; }
+.sold-out-banner{ display:inline-block; background:#e05252; color:#fff; font-size:0.72rem; font-weight:700; letter-spacing:1.5px; padding:4px 14px; border-radius:50px; text-transform:uppercase; margin-bottom:8px; }
+.menu-item img{ width:130px; height:130px; object-fit:cover; border-radius:14px; margin-bottom:10px; cursor:pointer; transition:0.3s ease; }
+.menu-item img:hover{ transform:scale(1.05); }
+.add-order-btn{ width:100%; padding:12px; background:#d4af37; color:#fff; border:none; border-radius:10px; margin-top:10px; cursor:pointer; font-weight:bold; font-size:0.95rem; transition:0.2s; }
+.add-order-btn:hover:not(:disabled){ background:#c49d2e; }
+.add-order-btn:disabled{ background:#ccc; cursor:not-allowed; color:#999; }
+.booking-form{ margin-top:40px; background:#fff; padding:35px; border-radius:25px; box-shadow:0 10px 30px rgba(0,0,0,.06); }
+.booking-form h2{ color:#d4af37; margin-bottom:25px; }
+.form-group{ margin-bottom:20px; }
+.form-group label{ display:block; margin-bottom:8px; font-weight:bold; }
+.form-group input, .form-group textarea, .form-group select{ width:100%; padding:14px; border:2px solid #eee; border-radius:14px; font-family:Arial,sans-serif; }
+.submit-btn{ width:100%; border:none; background:#d4af37; padding:16px; border-radius:50px; font-size:1rem; font-weight:bold; cursor:pointer; color:#fff; }
+.submit-btn:hover{ background:#c49d2e; }
+.back{ display:inline-block; margin-top:30px; text-decoration:none; color:#000; font-weight:bold; }
+.modal{ display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; }
+.modal img{ max-width:90%; max-height:90%; border-radius:20px; }
+.close{ position:absolute; top:20px; right:30px; font-size:40px; color:#fff; cursor:pointer; }
+.info-modal{ display:none; position:fixed; z-index:10000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; }
+.info-modal-content{ background:#fff; padding:35px; border-radius:25px; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; position:relative; }
+.info-modal-close{ position:absolute; top:15px; right:20px; font-size:30px; cursor:pointer; color:#d4af37; }
+.payment-section{ background:#fafafa; padding:20px; border-radius:14px; margin-bottom:20px; }
+@media(max-width:768px){ .container{padding:20px 15px;} h1{font-size:2rem;} .category{padding:20px 15px;} .booking-form{padding:25px 20px;} .info-modal-content{padding:25px 20px;width:95%;} } 
+.product-desc {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 6px 0 10px;
+    line-height: 1.4;
+}
+
+/* Order Summary Sidebar */
+.order-summary-sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    width: 380px;
+    background: #fff;
+    box-shadow: -5px 0 30px rgba(0,0,0,0.15);
+    z-index: 5000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* FIX */
+}
+
+.order-summary-sidebar.open {
+    transform: translateX(0);
+}
+
+.sidebar-header {
+    background: linear-gradient(135deg, #d4af37, #c49d2e);
+    color: #fff;
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.sidebar-close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    min-height: 0; /* VERY IMPORTANT */
+}
+
+.sidebar-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border-left: 4px solid #d4af37;
+}
+
+.sidebar-item-details {
+    flex: 1;
+}
+
+.sidebar-item-name {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.sidebar-item-price {
+    color: #d4af37;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.sidebar-item-remove {
+    background: black;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-left: 10px;
+    transition: 0.2s;
+}
+
+.sidebar-item-remove:hover {
+    background: black;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 2px solid #eee;
+    background: #fafafa;
+    flex-shrink: 0;
+}
+
+.sidebar-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.sidebar-total-price {
+    color: #d4af37;
+    font-size: 1.4rem;
+}
+
+.sidebar-clear-btn {
+    width: 100%;
+    padding: 12px;
+    background: black;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 10px;
+    transition: 0.2s;
+}
+
+.sidebar-clear-btn:hover {
+    background: black;
+}
+
+.sidebar-confirm-btn {
+    width: 100%;
+    padding: 14px;
+    background: #d4af37;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.sidebar-confirm-btn:hover {
+    background: #c49d2e;
+}
+
+.sidebar-empty {
+    text-align: center;
+    color: #999;
+    padding: 40px 20px;
+    font-size: 0.95rem;
+}
+
+.order-summary-toggle {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #d4af37;
+    color: #fff;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+    z-index: 4999;
+    transition: 0.3s;
+    display: none;
+}
+
+.order-summary-toggle:hover {
+    background: #c49d2e;
+    transform: scale(1.05);
+}
+
+.order-summary-toggle.show {
+    display: block;
+}
+
+.sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 4998;
+    display: none;
+}
+
+.sidebar-backdrop.show {
+    display: block;
+}
+
+@media(max-width: 600px) {
+    .order-summary-sidebar {
+        width: 100%;
+    }
+    
+    .order-summary-toggle {
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Custom Cakes</h1>
+    <p class="subtitle">Book your customized cakes</p>
+    <p>You may select your preferred theme, flavor, and size, but orders must be placed at least 3 days advance of the desired date.</p>
+    <br>
+
+    <input type="text" id="searchBox" placeholder="Search cakes..." onkeyup="renderMenu()" style="width:100%;padding:15px;margin-bottom:10px;">
+
+    <div class="filter">
+        <select id="categoryFilter" onchange="filterCategory()">
+            <option value="all">All Custom Cakes</option>
+            <option value="wedding">Wedding Cakes</option>
+            <option value="birthday">Birthday Cakes</option>
+            <option value="christening">Christening Cakes</option>
+            <option value="pastries">Pastries</option>
+            <option value="fathersday">Father's Day Cakes</option>
+            <option value="debut">Debut Cakes</option>
+            <option value="teachersday">Teacher's Day Cakes</option>
+            <option value="christmas">Christmas Cakes</option>
+            <option value="newyear">New Year's Cakes</option>
+            <option value="valentines">Valentines Cakes</option>
+            <option value="mothersday">Mother's Day Cakes</option>
+            <option value="graduation">Graduation Cakes</option>
+        </select>
+    </div>
+
+    <div id="menuContainer"></div>
+
+    <!-- BOOKING FORM -->
+    <!-- BOOKING FORM -->
+<form id="bookingForm" action="https://formslist.com/f/2ibW4pVMji9E" method="POST" class="booking-form">
+    <input type="hidden" name="_subject" value="New Custom Cake Order & Booking">
+    <input type="hidden" name="form_type" value="order_and_booking">
+    <input type="hidden" id="orderedProducts" name="ordered_products" value="">
+    <input type="hidden" id="orderTotal" name="order_total" value="">
+
+        <h2 style="color:#d4af37; margin-bottom:20px; text-align:center;">Order Form</h2>
+        
+        <div class="form-group">
+            <label>Date of Pick Up</label>
+            <input type="date" name="pickup_date" required>
+        </div>
+        <div class="form-group">
+    <label>
+        Pick Up Time
+        <br>
+       <small style="color:#666;font-weight:normal;">
+    (Our operating hours are from 8:30 AM to 7:00 PM.)
+</small>
+    </label>
+    <input type="time" name="pickup_time" required>
+</div>
+        <div class="form-group">
+            <label>Customer Name</label>
+            <input type="text" name="customer_name" required>
+        </div>
+        <div class="form-group">
+            <label>Lettering/Dedication (For Cakes Only)</label>
+            <input type="text" name="dedication" required>
+        </div>
+        <div class="form-group">
+            <label>Cake Flavor<br><small style="color:#666;font-weight:normal;">(All cakes on the menu are Chocolate Moist. You can also choose Vanilla Chiffon or Ube Moist, but orders for these flavors must be placed 7 days in advance.)</small></label>
+            <textarea name="flavor" required placeholder="Example: Vanilla Chiffon"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Contact Number</label>
+            <input type="tel" name="contact" required>
+        </div>
+        <div class="form-group">
+            <label>Special Instructions</label>
+            <textarea name="special_instructions"></textarea>
+        </div>
+        <div class="form-group">
+    <label>Enter GCash Reference Number<br><small style="color:#666;font-weight:normal;">(A 20% downpayment of the total order amount is required.)</small></label>
+    <input type="text" name="gcash_reference_number" required placeholder="Enter your GCash reference number">
+</div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Submit Order &amp; Booking</button>
+    </form>
+
+<!-- Info Modal -->
+        
+       
+<!-- Info Modal -->
+<div class="info-modal" id="reminderModal" onclick="closeReminderModal()">
+    <div class="info-modal-content" onclick="event.stopPropagation()">
+        <span class="info-modal-close" onclick="closeReminderModal()">&times;</span>
+        <h2 style="color:#d4af37;margin-bottom:25px;">📌 Important Reminders</h2>
+        <div class="payment-section">
+            <h3 style="color:#d4af37;margin-bottom:15px;">Down Payment</h3>
+            <p style="line-height:1.8;margin-bottom:10px;"><strong>20%</strong> of the total order amount is required.</p>
+            <p style="line-height:1.8;margin-bottom:10px;">For orders below ₱500, a <strong>₱100 down payment</strong> is automatically required.</p>
+            <p style="line-height:1.8;">You can pay the <strong>remaining balance</strong> when you pick up your order.</p>
+        </div>
+        <div class="payment-section">
+            <h3 style="color:#d4af37;margin-bottom:15px;">Mode of Payment</h3>
+            <div style="background:#fff;padding:15px;border-radius:10px;border:2px solid #d4af37;">
+                <h4 style="color:#d4af37;margin-bottom:10px;">GCash</h4>
+                <p style="font-size:1.3rem;font-weight:bold;margin-bottom:5px;">0997 102 6856</p>
+                <p style="color:#666;margin-bottom:15px;">Mirralene O</p>
+                <p style="color:#666;font-size:0.9rem;">Send screenshot of payment as proof</p>
+            </div>
+        </div>
+        <button onclick="closeReminderModal()" style="width:100%;padding:15px;background:#d4af37;border:none;border-radius:50px;font-weight:bold;cursor:pointer;margin-top:10px;color:#fff;">I Understand</button>
+    </div>
+</div>
+
+<div class="modal" id="modal" onclick="closeModal()">
+    <span class="close">&times;</span>
+    <img id="modalImg">
+</div>
+
+<script>
+const API = '/api/menu?type=custom';
+
+const CAT_LABELS = {
+    wedding:'Wedding Cakes', birthday:'Birthday Cakes',
+    christening:'Christening Cakes', pastries:'Pastries',
+    fathersday:"Father's Day Cakes", debut:'Debut Cakes',
+    teachersday:'Teachers Day Cakes', christmas:'Christmas Cakes',
+    newyear:"New Year's Cakes", valentines:'Valentines Cakes',
+    mothersday:"Mother's Day Cakes", graduation:'Graduation Cakes',
+};
+
+const DEFAULT_CUSTOM = [
+    { id: 'w1', category: 'wedding', name: '1 Tier Wedding Cake Design #1', price: 1600, image: '1TIERWEDDINGCAKE1.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper' },
+    { id: 'w2', category: 'wedding', name: '2 Tier Wedding Cake Design #1', price: 2900, image: 'WEDDINGCAKE1.jpeg', description: '8x6, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper' },
+    { id: 'w3', category: 'wedding', name: '2 Tier Wedding Cake Design #2', price: 2900, image: 'WEDDINGCAKE2.jpeg', description: '8x6, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper' },
+    { id: 'w4', category: 'wedding', name: '2 Tier Wedding Cake Design #3', price: 2900, image: '2TIERWD3.jpeg', description: '8x6, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', note: 'Color can be change according to motif.' },
+    { id: 'w5', category: 'wedding', name: '2 Tier Wedding Cake Design #4', price: 2999, image: '2TIERDESIGN4.jpeg', description: '8x6, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', note: 'Color can be change according to motif.' },
+    { id: 'w6', category: 'wedding', name: '2 Tier Wedding Cake Design #5', price: 2999, image: '2TIERDESIGN5.jpeg', description: '8x6, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', note: 'Color can be change according to motif.' },
+    { id: 'w7', category: 'wedding', name: '3 Tier Wedding Cake Design #1', price: 4500, image: 'LIGHTGREEN3.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper' },
+    { id: 'w8', category: 'wedding', name: '3 Tier Wedding Cake Design #2', price: 4500, image: 'DARKGREEN3.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper' },
+    { id: 'w9', category: 'wedding', name: '3 Tier Wedding Cake Design #3', price: 6500, image: '3TIERWD3.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Fondant Flowers and Border<br>Acrylic Mr. & Mrs. Topper', note: 'Color can be change according to the motif. (please specify)' },
+    { id: 'w10', category: 'wedding', name: '3 Tier Wedding Cake Design #4', price: 4800, image: '3TIERDESIGN4.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper' },
+    { id: 'w11', category: 'wedding', name: '3 Tier Wedding Cake with Gold Accents Design #5', price: 4800, image: 'GOLDACCENTS.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper' },
+    { id: 'w12', category: 'wedding', name: '3 Tier Wedding Cake with Rose Stencil Design #6', price: 5500, image: 'ROSESTENCIL.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Fresh Flowers<br>Customized Name Topper' },
+    { id: 'b1', category: 'birthday', name: '8x4 Spiderman Birthday Cake', price: 950, image: 'SPIDERMAN.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'b2', category: 'birthday', name: '8x4 Barbie Birthday Cake', price: 1200, image: 'BARBIE.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Picture, Age, and Name<br>Fondant French Macaroons<br>Candy Topper' },
+    { id: 'b3', category: 'birthday', name: '8x4 Mermaid Birthday Cake', price: 1500, image: 'MERMAID.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Fondant Details' },
+    { id: 'b4', category: 'birthday', name: '8x4 Frozen Birthday Cake', price: 950, image: 'FROZEN.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'b5', category: 'birthday', name: '7x6 Butterfly Birthday Cake', price: 1400, image: 'BUTTERFLY.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper<br>Non-Edible Cake Balls' },
+    { id: 'b6', category: 'birthday', name: '8x4 Dinosaur Birthday Cake', price: 950, image: 'DINOSAUR.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'b7', category: 'birthday', name: '8x4 Minecraft Birthday Cake', price: 950, image: 'MINECRAFT.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'b8', category: 'birthday', name: '8x4 Roblox Birthday Cake', price: 950, image: 'ROBLOX.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'b9', category: 'birthday', name: '8x4 Basketball Birthday Cake', price: 1200, image: 'BASKETBALL.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'b10', category: 'birthday', name: '2 Tier 1st Birthday Cake Design #1', price: 2999, image: 'FIRST.jpeg', description: '8x4, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Non-Edible Cake Ball Topper<br>Number Candle<br>Acrylic HBD Topper<br>Fondant Name', note: 'Color can be change according to the motif. (please specify)' },
+    { id: 'b11', category: 'birthday', name: '8x4 Kuromi Birthday Cake', price: 950, image: 'KUROMI.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'b12', category: 'birthday', name: '8x4 Unicorn Birthday Cake', price: 950, image: 'UNICORN.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'b13', category: 'birthday', name: '7x6 75th Birthday Cake', price: 1400, image: '75TH.png', description: 'Also suitable for 50th and 60th Birthday<br>Choco Moist Cake<br>Whipping Icing<br>Acrylic HBD Topper<br>Non-Edible Cake Topper' },
+    { id: 'b14', category: 'birthday', name: '8x4 Red Horse Theme Birthday Cake', price: 950, image: 'RHBDAY.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'c1', category: 'christening', name: '2 Tier Christening Cake Design #1', price: 2200, image: 'CHRISTENING1.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Non-Edible Cake Ball Topper', note: 'Color can be change according to motif.' },
+    { id: 'c2', category: 'christening', name: '2 Tier Christening Cake Design #2', price: 2200, image: 'CHRISTENING2.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', note: 'Color can be change according to motif.' },
+    { id: 'c3', category: 'christening', name: '6x4 Christening Cake + 1 Dozen Cupcakes', price: 950, image: '6x4CHRISTENING.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Toppers' },
+    { id: 'c4', category: 'christening', name: '8x6 Christening Cake + 1 Dozen Cupcakes', price: 2100, image: '8x6CHRISTENING.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Fondant details except cross and butterfly' },
+    { id: 'p1', category: 'pastries', name: '24 pcs Cheesebars', price: 250, image: 'CHEESEBARS.jpeg', description: 'Assorted Cheesebars' },
+    { id: 'p2', category: 'pastries', name: '24 pcs Brownies', price: 299, image: 'BROWNIES.jpeg', description: 'Rich Chocolate Brownies' },
+    { id: 'p3', category: 'pastries', name: '50 pcs Macaroons', price: 360, image: 'MACAROONS.jpeg', description: 'French Macaroons' },
+    { id: 'p4', category: 'pastries', name: '24 pcs Chantilly Bars', price: 360, image: 'CHANTILLYBARS.jpeg', description: 'Chantilly Cream Bars' },
+    { id: 'p5', category: 'pastries', name: '50 pcs Cheesebars (bitesize)', price: 370, image: 'CHEESEBARS2.jpeg', description: 'Mini Cheesebars' },
+    { id: 'p6', category: 'pastries', name: '50 pcs Brownies (bitesize)', price: 399, image: 'BROWNIES2.jpeg', description: 'Mini Brownies' },
+    { id: 'p7', category: 'pastries', name: '36 pcs Banana Cupcakes (size: 2oz)', price: 260, image: 'BANANACUPCAKES.jpeg', description: 'Banana Cupcakes' },
+    { id: 'p8', category: 'pastries', name: '25 pcs Crinkles', price: 195, image: 'CRINKLES.jpeg', description: 'Chocolate Crinkles' },
+    { id: 'p9', category: 'pastries', name: '1 Dozen Rossette Cupcakes (size: 2oz)', price: 250, image: 'ROSSETTE.jpeg', description: 'Rossette Cupcakes', note: 'Can choose color, please specify upon booking.' },
+    { id: 'p10', category: 'pastries', name: '1 Dozen Cakepops', price: 280, image: 'CAKEPOPS.jpeg', description: 'Cake Pops' },
+    { id: 'f1', category: 'fathersday', name: 'Fathers Day Bento Cake', price: 199, image: '6.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Fondant Topper' },
+    { id: 'f2', category: 'fathersday', name: 'Fathers Day Bento Cake with 5 Cupcakes', price: 450, image: '5.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Fondant Topper' },
+    { id: 'f3', category: 'fathersday', name: 'Fathers Day Bento Cake with 2 Cupcakes', price: 320, image: '2.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Fondant Topper' },
+    { id: 'f4', category: 'fathersday', name: 'Fathers Day Bento Cake with Red Horse in Can', price: 350, image: 'REDHORSE.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'f5', category: 'fathersday', name: 'Fathers Day Red Horse Theme Bento Cake', price: 199, image: 'FDREDHORSE.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper' },
+    { id: 'd1', category: 'debut', name: '1 Tier Debut Cake Vintage Design #1', price: 1300, image: '1TIER1.jpeg', description: '8x4<br>Choco Moist Cake<br>Whipping Icing<br>Acrylic Happy 18th Topper' },
+    { id: 'd2', category: 'debut', name: '2 Tier Debut Cake Vintage Design #1', price: 2200, image: '182TIER.png', description: '8x4, 6x4<br>Choco Moist Cake<br>Whipping Icing<br>Acrylic Happy 18th Topper', note: 'Color can be change according to motif.' },
+    { id: 'd3', category: 'debut', name: '2 Tier Debut Cake Vintage Design #2', price: 2200, image: '2TIER2.jpeg', description: '8x4, 6x4<br>Choco Moist Cake<br>Whipping Icing<br>Acrylic Happy 18th Topper', note: 'Color can be change according to motif.' },
+    { id: 'd4', category: 'debut', name: '2 Tier Debut Cake Vintage Design #3', price: 2200, image: '2TIER3.jpeg', description: '8x4, 6x4<br>Choco Moist Cake<br>Whipping Icing<br>Acrylic Happy 18th Topper', note: 'Color can be change according to motif.' }
+];
+
+let menuData = [];
+let orders = [];
+
+let isSubmitting = false;
+
+function validateForm(){
+    if(isSubmitting) return false;
+
+    if(orders.length === 0){
+        alert("Add at least one order first.");
+        return false;
+    }
+
+    if(!validateTime()){
+        return false;
+    }
+
+    isSubmitting = true;
+
+    return true;
+}
+
+/* ═══ LOAD MENU FROM API ═══ */
+async function loadMenu(){
+    try {
+        const res = await fetch(API);
+        const data = await res.json();
+        menuData = Array.isArray(data) ? data : (data.custom || data.shop || DEFAULT_CUSTOM);
+        console.log('Loaded items:', menuData.length);
+    } catch(e) {
+        console.error('Load error:', e);
+        menuData = DEFAULT_CUSTOM;
+    }
+    renderMenu();
+}
+
+/* ═══ RENDER MENU ═══ */
+function renderMenu() {
+    const filter = document.getElementById('categoryFilter').value;
+    const search = document.getElementById('searchBox').value.toLowerCase().trim();
+
+    const cats = Object.keys(CAT_LABELS);
+    let html = '';
+
+    cats.forEach(cat => {
+        if(filter !== 'all' && filter !== cat) return;
+
+        let items = menuData.filter(m => m.category === cat);
+
+        if(search){
+            items = items.filter(i =>
+                i.name.toLowerCase().includes(search) ||
+                i.category.toLowerCase().includes(search)
+            );
+        }
+
+        if(!items.length) return;
+
+        html += `<div class="category"><h2>${CAT_LABELS[cat]}</h2>`;
+
+        items.forEach(item => {
+            const soldBanner = item.soldOut ? `<div class="sold-out-banner">🚫 Sold Out</div>` : '';
+            html += `
+            <div class="menu-item ${item.soldOut ? 'sold-out-item' : ''}">
+                ${soldBanner}
+                <img src="${item.image}" onclick="openModal('${item.image}')" onerror="this.src='https://via.placeholder.com/130x130?text=No+Image'">
+                <h3>${item.name}</h3>
+                <div class="product-desc">${item.description ? item.description : ''}</div>
+                <p><strong>Price:</strong> ₱${Number(item.price).toLocaleString()}</p>
+                <button class="add-order-btn" ${item.soldOut ? 'disabled' : ''} onclick="addOrder('${item.name.replace(/'/g, "\\'")}', ${item.price})">
+                    ${item.soldOut ? 'Sold Out' : 'Add to Order'}
+                </button>
+            </div>`;
+        });
+
+        html += `</div>`;
+    });
+
+    document.getElementById('menuContainer').innerHTML = html || '<p style="text-align:center;color:#999;">No items found.</p>';
+}
+
+/* ═══ FILTER ═══ */
+function filterCategory(){ renderMenu(); }
+
+function addOrder(name, price){
+    orders.push({ name, price });
+    updateOrderSummaryNewVersion();
+    document.getElementById('orderSummarySidebar').classList.add('open');
+    document.getElementById('sidebarBackdrop').classList.add('show');
+}
+
+function removeOrder(index){
+    orders.splice(index, 1);
+    updateOrderSummaryNewVersion();
+}
+
+function updateOrderSummaryNewVersion() {
+    const sidebar = document.getElementById('orderSummarySidebar');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const content = document.getElementById('sidebarContent');
+    const toggleBtn = document.getElementById('orderToggleBtn');
+    
+    if(orders.length === 0) {
+        content.innerHTML = '<div class="sidebar-empty">No items added yet</div>';
+        toggleBtn.classList.remove('show');
+        document.getElementById('sidebarTotalPrice').textContent = '₱0';
+        document.getElementById('orderCount').textContent = '0';
+        document.getElementById('orderedProducts').value = '';
+        document.getElementById('orderTotal').value = '';
+        
+        // SIDEBAR STAYS OPEN, JUST SHOWS EMPTY STATE
+        return;
+    }
+    
+    toggleBtn.classList.add('show');
+    document.getElementById('orderCount').textContent = orders.length;
+    
+    let html = '';
+    let total = 0;
+    let txt = '';
+    
+    orders.forEach((o, i) => {
+        total += o.price;
+        txt += `${i+1}. ${o.name} - ₱${o.price}\n`;
+        html += `
+        <div class="sidebar-item">
+            <div class="sidebar-item-details">
+                <div class="sidebar-item-name">${o.name}</div>
+                <div class="sidebar-item-price">₱${o.price.toLocaleString()}</div>
+            </div>
+            <button type="button" class="sidebar-item-remove" onclick="removeOrder(${i})">Remove</button>
+        </div>`;
+    });
+    
+    content.innerHTML = html;
+    document.getElementById('sidebarTotalPrice').textContent = '₱' + total.toLocaleString();
+    document.getElementById('orderedProducts').value = txt;
+    document.getElementById('orderTotal').value = '₱' + total;
+}
+    
+function clearAllOrders(){
+     
+    if(confirm('Clear all orders?')) { 
+        orders = []; 
+        updateOrderSummaryNewVersion(); 
+    }
+}
+
+function toggleOrderSidebar() {
+    const sidebar = document.getElementById('orderSummarySidebar');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+}
+
+function scrollToForm() {
+    document.getElementById('orderSummarySidebar').classList.remove('open');
+    document.getElementById('sidebarBackdrop').classList.remove('show');
+
+    document.querySelector('.booking-form')
+        .scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ═══ MODALS ═══ */
+function openModal(src){ 
+    document.getElementById('modal').style.display = 'flex'; 
+    document.getElementById('modalImg').src = src; 
+}
+function closeModal(){ 
+    document.getElementById('modal').style.display = 'none'; 
+}
+function closeReminderModal(){ 
+    document.getElementById('reminderModal').style.display = 'none'; 
+}
+
+/* ═══ DATE PICKER ═══ */
+function setMinPickupDate(){
+    const today = new Date();
+    today.setDate(today.getDate() + 3);
+    const minDate = today.toISOString().split("T")[0];
+    const dateInput = document.querySelector('input[name="pickup_date"]');
+    if(dateInput) dateInput.min = minDate;
+}
+
+function validateTime(){
+    const time = document.querySelector('input[name="pickup_time"]').value;
+    const [h, m] = time.split(":").map(Number);
+    const minutes = h * 60 + m;
+    const min = 8 * 60 + 30;
+    const max = 19 * 60;
+    if(minutes < min || minutes > max){
+        alert("Pick-up time must be between 8:30 AM and 7:00 PM only.");
+        return false;
+    }
+    return true;
+}
+
+/* ═══ SUBMIT + REDIRECT ═══ */
+document.getElementById('bookingForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    if(!validateForm()) return;   // validation nimo (nag-set sa isSubmitting = true)
+
+    const form = e.target;
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+        const res = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' }
+        });
+        if(!res.ok) throw new Error('Bad response');
+        window.location.href = 'https://honeybaked.shop/thankyou.html';
+    } catch(err) {
+        alert('Naay problema sa pag-submit. Palihug sulayi pag-usab.');
+        isSubmitting = false;          // para makasulay pag-usab
+        btn.disabled = false;
+        btn.textContent = 'Submit Order & Booking';
+    }
+});
+
+/* ═══ INIT ═══ */
+window.onload = function(){
+    document.getElementById('reminderModal').style.display = 'flex';
+    loadMenu();
+    setMinPickupDate();
+};
+</script>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleOrderSidebar()"></div>
+
+<div class="order-summary-sidebar" id="orderSummarySidebar">
+    <div class="sidebar-header">
+        Order Summary
+        <button class="sidebar-close-btn" onclick="toggleOrderSidebar()">✕</button>
+    </div>
+    <div class="sidebar-content" id="sidebarContent">
+        <div class="sidebar-empty">No items added yet</div>
+    </div>
+    <div class="sidebar-footer">
+        <div class="sidebar-total">
+            <span>Total:</span>
+            <span class="sidebar-total-price" id="sidebarTotalPrice">₱0</span>
+        </div>
+        
+        <button class="sidebar-confirm-btn" onclick="scrollToForm()">Confirm Order and Booking</button>
+    </div>
+</div>
+
+<button class="order-summary-toggle" id="orderToggleBtn" onclick="toggleOrderSidebar()">
+     View Order (<span id="orderCount">0</span>)
+</button>
+
+</body>
+</html>

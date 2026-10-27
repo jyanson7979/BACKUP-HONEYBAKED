@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/png" href="honeybaked_favicon.png">
+<title>Thank You - Honeybaked</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family: Arial, sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#FFF9F0,#FFEFD5);
+    padding:20px;
+    color:#333;
+}
+
+.card{
+    background:#ffffff;
+    max-width:650px;
+    width:100%;
+    padding:50px 40px;
+    border-radius:30px;
+    text-align:center;
+    box-shadow:0 20px 50px rgba(0,0,0,0.08);
+    animation:fadeUp 0.8s ease;
+}
+
+.logo{
+    width:120px;
+    height:120px;
+    object-fit:cover;
+    border-radius:50%;
+    margin-bottom:25px;
+    box-shadow:0 8px 20px rgba(212,175,55,0.25);
+}
+
+.checkmark{
+    width:90px;
+    height:90px;
+    margin:0 auto 25px;
+    border-radius:50%;
+    background:#d4af37;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:#fff;
+    font-size:48px;
+    font-weight:bold;
+    box-shadow:0 10px 30px rgba(212,175,55,0.35);
+}
+
+h1{
+    color:#d4af37;
+    font-size:2.8rem;
+    margin-bottom:15px;
+}
+
+p{
+    line-height:1.8;
+    color:#555;
+    margin-bottom:15px;
+    font-size:1.05rem;
+}
+
+.highlight{
+    background:#FFF8E1;
+    border-left:5px solid #d4af37;
+    padding:18px 20px;
+    border-radius:16px;
+    margin:25px 0;
+    text-align:left;
+}
+
+.highlight strong{
+    color:#6F4E37;
+}
+
+.actions{
+    margin-top:30px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:15px;
+    justify-content:center;
+}
+
+.btn{
+    display:inline-block;
+    padding:14px 28px;
+    border-radius:50px;
+    text-decoration:none;
+    font-weight:bold;
+    transition:0.3s ease;
+}
+
+.btn-primary{
+    background:#d4af37;
+    color:#fff;
+    box-shadow:0 8px 20px rgba(212,175,55,0.25);
+}
+
+.btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 25px rgba(212,175,55,0.35);
+}
+
+.btn-secondary{
+    background:#2C1810;
+    color:#fff;
+}
+
+.btn-secondary:hover{
+    transform:translateY(-2px);
+    opacity:0.95;
+}
+
+.footer-note{
+    margin-top:30px;
+    font-size:0.9rem;
+    color:#888;
+}
+
+@keyframes fadeUp{
+    from{
+        opacity:0;
+        transform:translateY(30px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+@media (max-width: 600px){
+    .card{
+        padding:40px 25px;
+        border-radius:24px;
+    }
+
+    h1{
+        font-size:2.2rem;
+    }
+
+    .actions{
+        flex-direction:column;
+    }
+
+    .btn{
+        width:100%;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+
+    <!-- Optional Logo -->
+    <img src="LOGO.jpg" alt="Honeybaked Logo" class="logo">
+
+    <!-- Success Icon -->
+    <div class="checkmark">✓</div>
+
+    <h1>Thank You!</h1>
+
+    <p>
+        Your order has been successfully submitted to <strong>Honeybaked</strong>.
+    </p>
+
+    <p>
+        Our team will review your order and contact you as soon as possible
+        through your provided contact number.
+    </p>
+
+    <p>
+        Thank you for choosing Honeybaked for your cakes, pastries, and coffee.
+        We appreciate your trust and support! 
+    </p>
+
+    <div class="actions">
+        <a href="orders.html" class="btn btn-primary">Order Again</a>
+        <a href="index.html" class="btn btn-secondary">Back to Home</a>
+    </div>
+
+    <div class="footer-note">
+        © 2026 Honeybaked. 
+    </div>
+
+</div>
+
+</body>
+</html>

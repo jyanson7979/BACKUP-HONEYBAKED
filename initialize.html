@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initialize Honeybaked Menu Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FFF9F0, #FFEFD5);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #6F4E37;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #d4af37;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .status {
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        button {
+            background: #d4af37;
+            color: #fff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        button:hover {
+            background: #c49d2e;
+            transform: scale(1.02);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6F4E37;
+        }
+
+        .btn-secondary:hover {
+            background: #5a3e2c;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f4ef, #fff);
+            padding: 15px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #d4af37;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 2px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🍰 Honeybaked Menu Database Initializer</h1>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                This tool will set up your menu data on JSONBin.io for both Shop and Custom Cakes pages.
+            </p>
+
+            <div class="input-group">
+                <label>🔑 JSONBin.io Master Key (required)</label>
+                <input type="password" id="masterKey" placeholder="Enter your JSONBin Master Key" style="font-family: monospace;">
+                <small style="color: #666; display: block; margin-top: 5px;">
+                    Get your key from <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> → Account → API Keys
+                </small>
+            </div>
+
+            <div class="input-group">
+                <label>📦 Bin ID for Shop Menu (optional - will create new if blank)</label>
+                <input type="text" id="shopBinId" placeholder="Leave blank to create new bin">
+            </div>
+
+            <div class="input-group">
+                <label>🎂 Bin ID for Custom Cakes Menu (optional - will create new if blank)</label>
+                <input type="text" id="customBinId" placeholder="Leave blank to create new bin">
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <button id="initBtn" onclick="initializeBoth()">🚀 Initialize Both Bins</button>
+                <button id="shopOnlyBtn" onclick="initializeShopOnly()" class="btn-secondary">🍰 Initialize Shop Only</button>
+                <button id="customOnlyBtn" onclick="initializeCustomOnly()" class="btn-secondary">🎂 Initialize Custom Cakes Only</button>
+                <button onclick="checkExisting()" class="btn-secondary">🔍 Check Existing Bins</button>
+            </div>
+
+            <div id="status"></div>
+        </div>
+
+        <div class="card" id="statsCard" style="display: none;">
+            <h2>📊 Menu Statistics</h2>
+            <div class="stats" id="stats"></div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Instructions</h2>
+            <ol style="margin-left: 20px; line-height: 1.8;">
+                <li>Get your JSONBin Master Key from <a href="https://jsonbin.io" target="_blank">jsonbin.io</a> (sign up for free)</li>
+                <li>Paste your Master Key in the field above</li>
+                <li>Click "Initialize Both Bins" to create/update your menus</li>
+                <li>Copy the Bin IDs shown after successful initialization</li>
+                <li>Update your HTML files with these Bin IDs:
+                    <ul style="margin-top: 10px;">
+                        <li><strong>Shop Page (orders.html):</strong> Change <code style="background:#f0f0f0;padding:2px 6px;">const API = '/api/menu';</code> to your JSONBin URL</li>
+                        <li><strong>Custom Cakes Page:</strong> Change the API URL similarly</li>
+                    </ul>
+                </li>
+            </ol>
+            <hr>
+            <h3>🔗 API URL Format:</h3>
+            <code style="background: #f0f0f0; padding: 10px; display: block; border-radius: 8px; margin-top: 10px;">
+                https://api.jsonbin.io/v3/b/[YOUR_BIN_ID]/latest
+            </code>
+            <p style="margin-top: 10px;">
+                <strong>Headers required:</strong><br>
+                <code>X-Master-Key: your_master_key</code><br>
+                <code>X-Bin-Version: 2 (optional)</code>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DEFAULT DATA (COMPLETE WITH DESCRIPTIONS) ====================
+        
+        // SHOP MENU DATA - 23 items with full details
+        const DEFAULT_SHOP = [
+            { id: 'sc1', category: 'bento', name: 'Bento Cake (Design 1)', price: 185, image: 'BENTO1.jpeg', soldOut: false },
+            { id: 'sc2', category: 'bento', name: 'Coquette Bento', price: 185, image: 'COQUETTEBENTO.jpeg', soldOut: false },
+            { id: 'sc3', category: 'bento', name: 'Bento Cake (Design 2)', price: 185, image: 'BENTO2.jpeg', soldOut: false },
+            { id: 'sc4', category: 'bento', name: 'Bento Cake (Design 3)', price: 185, image: 'BENTO3.jpeg', soldOut: false },
+            { id: 'sd1', category: 'drip', name: 'Drip Cake (6x4)', price: 650, image: 'DRIPCAKE.jpeg', soldOut: false },
+            { id: 'sv1', category: 'vintage', name: 'Black Forest (5x3)', price: 420, image: 'BLACKFOREST.jpg', soldOut: false },
+            { id: 'sv2', category: 'vintage', name: 'White Vintage with Black Ribbon (5x3)', price: 399, image: 'WHITEVINTAGECAKE1.jpg', soldOut: false },
+            { id: 'sv3', category: 'vintage', name: 'White Vintage with Red Ribbon (5x3)', price: 399, image: 'WHITEVINTAGECAKE2.jpg', soldOut: false },
+            { id: 'sv4', category: 'vintage', name: 'Blue Vintage (5x3)', price: 399, image: 'BLUEVINTAGECAKE4.jpeg', soldOut: false },
+            { id: 'sv5', category: 'vintage', name: 'Purple Vintage (5x3)', price: 399, image: 'PURPLEVINTAGECAKE5.jpeg', soldOut: false },
+            { id: 'sv6', category: 'vintage', name: 'Pink Vintage (5x3)', price: 399, image: 'PINKVINTAGECAKE3.jpeg', soldOut: false },
+            { id: 'sco1', category: 'coffee', name: 'Coffee Latte', price: 59, image: 'COFFEE_LATTE.jpg', soldOut: false },
+            { id: 'sco2', category: 'coffee', name: 'Spanish Latte', price: 59, image: 'SPANISH_LATTE.jpg', soldOut: false },
+            { id: 'sco3', category: 'coffee', name: 'Mocha Latte', price: 65, image: 'MOCHA_LATTE.jpg', soldOut: false },
+            { id: 'sco4', category: 'coffee', name: 'Vanilla Latte', price: 65, image: 'VANILLA_LATTE.jpg', soldOut: false },
+            { id: 'sco5', category: 'coffee', name: 'Caramel Macchiato', price: 65, image: 'CARAMEL_MACCHIATO.jpg', soldOut: false },
+            { id: 'snc1', category: 'noncoffee', name: 'Strawberry Milk', price: 59, image: 'STRAWBERRY_MILK.jpg', soldOut: false },
+            { id: 'snc2', category: 'noncoffee', name: 'Blueberry Milk', price: 59, image: 'BLUEBERRY_MILK.jpg', soldOut: false },
+            { id: 'snc3', category: 'noncoffee', name: 'Mango Milk', price: 59, image: 'MANGO_MILK.jpg', soldOut: false },
+            { id: 'snc4', category: 'noncoffee', name: 'Chocolate Milk', price: 65, image: 'CHOCOLATE_MILK.jpg', soldOut: false },
+            { id: 'snc5', category: 'noncoffee', name: 'Choco Berry Milk', price: 68, image: 'CHOCO_BERRY.jpg', soldOut: false },
+            { id: 'snc6', category: 'noncoffee', name: 'Matcha Latte', price: 68, image: 'MATCHA_LATTE.jpg', soldOut: false },
+            { id: 'snc7', category: 'noncoffee', name: 'Strawberry Matcha Milk', price: 75, image: 'STRAWBERRY_MATCHA.jpg', soldOut: false }
+        ];
+
+        // CUSTOM CAKES MENU DATA - 49 items with FULL DESCRIPTIONS
+        const DEFAULT_CUSTOM = [
+            // Wedding Cakes (12)
+            { id: 'w1', category: 'wedding', name: '1 Tier Wedding Cake Design #1', price: 1600, image: '1TIERWEDDINGCAKE1.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', soldOut: false },
+            { id: 'w2', category: 'wedding', name: '2 Tier Wedding Cake Design #1', price: 2900, image: 'WEDDINGCAKE1.jpeg', description: '8x6, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', soldOut: false },
+            { id: 'w3', category: 'wedding', name: '2 Tier Wedding Cake Design #2', price: 2900, image: 'WEDDINGCAKE2.jpeg', description: '8x6, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', soldOut: false },
+            { id: 'w4', category: 'wedding', name: '2 Tier Wedding Cake Design #3', price: 2900, image: '2TIERWD3.jpeg', description: '8x6, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', note: 'Color can be change according to motif.', soldOut: false },
+            { id: 'w5', category: 'wedding', name: '2 Tier Wedding Cake Design #4', price: 2999, image: '2TIERDESIGN4.jpeg', description: '8x6, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', note: 'Color can be change according to motif.', soldOut: false },
+            { id: 'w6', category: 'wedding', name: '2 Tier Wedding Cake Design #5', price: 2999, image: '2TIERDESIGN5.jpeg', description: '8x6, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', note: 'Color can be change according to motif.', soldOut: false },
+            { id: 'w7', category: 'wedding', name: '3 Tier Wedding Cake Design #1', price: 4500, image: 'LIGHTGREEN3.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', soldOut: false },
+            { id: 'w8', category: 'wedding', name: '3 Tier Wedding Cake Design #2', price: 4500, image: 'DARKGREEN3.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', soldOut: false },
+            { id: 'w9', category: 'wedding', name: '3 Tier Wedding Cake Design #3', price: 6500, image: '3TIERWD3.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Fondant Flowers and Border<br>Acrylic Mr. & Mrs. Topper', note: 'Color can be change according to the motif. (please specify)', soldOut: false },
+            { id: 'w10', category: 'wedding', name: '3 Tier Wedding Cake Design #4', price: 4800, image: '3TIERDESIGN4.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', soldOut: false },
+            { id: 'w11', category: 'wedding', name: '3 Tier Wedding Cake with Gold Accents Design #5', price: 4800, image: 'GOLDACCENTS.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Plastic Flowers<br>Acrylic Mr. & Mrs. Topper', soldOut: false },
+            { id: 'w12', category: 'wedding', name: '3 Tier Wedding Cake with Rose Stencil Design #6', price: 5500, image: 'ROSESTENCIL.jpeg', description: '10x4, 8x4, 6x5<br>Choco Moist Cake<br>Whipping Icing<br>Fresh Flowers<br>Customized Name Topper', soldOut: false },
+            // Birthday Cakes (14)
+            { id: 'b1', category: 'birthday', name: '8x4 Spiderman Birthday Cake', price: 950, image: 'SPIDERMAN.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            { id: 'b2', category: 'birthday', name: '8x4 Barbie Birthday Cake', price: 1200, image: 'BARBIE.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Picture, Age, and Name<br>Fondant French Macaroons<br>Candy Topper', soldOut: false },
+            { id: 'b3', category: 'birthday', name: '8x4 Mermaid Birthday Cake', price: 1500, image: 'MERMAID.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Fondant Details', soldOut: false },
+            { id: 'b4', category: 'birthday', name: '8x4 Frozen Birthday Cake', price: 950, image: 'FROZEN.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            { id: 'b5', category: 'birthday', name: '7x6 Butterfly Birthday Cake', price: 1400, image: 'BUTTERFLY.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper<br>Non-Edible Cake Balls', soldOut: false },
+            { id: 'b6', category: 'birthday', name: '8x4 Dinosaur Birthday Cake', price: 950, image: 'DINOSAUR.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            { id: 'b7', category: 'birthday', name: '8x4 Minecraft Birthday Cake', price: 950, image: 'MINECRAFT.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            { id: 'b8', category: 'birthday', name: '8x4 Roblox Birthday Cake', price: 950, image: 'ROBLOX.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            { id: 'b9', category: 'birthday', name: '8x4 Basketball Birthday Cake', price: 1200, image: 'BASKETBALL.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            { id: 'b10', category: 'birthday', name: '2 Tier 1st Birthday Cake Design #1', price: 2999, image: 'FIRST.jpeg', description: '8x4, 6x6<br>Choco Moist Cake<br>Whipping Icing<br>Non-Edible Cake Ball Topper<br>Number Candle<br>Acrylic HBD Topper<br>Fondant Name', note: 'Color can be change according to the motif. (please specify)', soldOut: false },
+            { id: 'b11', category: 'birthday', name: '8x4 Kuromi Birthday Cake', price: 950, image: 'KUROMI.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            { id: 'b12', category: 'birthday', name: '8x4 Unicorn Birthday Cake', price: 950, image: 'UNICORN.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            { id: 'b13', category: 'birthday', name: '7x6 75th Birthday Cake', price: 1400, image: '75TH.png', description: 'Also suitable for 50th and 60th Birthday<br>Choco Moist Cake<br>Whipping Icing<br>Acrylic HBD Topper<br>Non-Edible Cake Topper', soldOut: false },
+            { id: 'b14', category: 'birthday', name: '8x4 Red Horse Theme Birthday Cake', price: 950, image: 'RHBDAY.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            // Christening Cakes (4)
+            { id: 'c1', category: 'christening', name: '2 Tier Christening Cake Design #1', price: 2200, image: 'CHRISTENING1.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Non-Edible Cake Ball Topper', note: 'Color can be change according to motif.', soldOut: false },
+            { id: 'c2', category: 'christening', name: '2 Tier Christening Cake Design #2', price: 2200, image: 'CHRISTENING2.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', note: 'Color can be change according to motif.', soldOut: false },
+            { id: 'c3', category: 'christening', name: '6x4 Christening Cake + 1 Dozen Cupcakes', price: 950, image: '6x4CHRISTENING.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Toppers', soldOut: false },
+            { id: 'c4', category: 'christening', name: '8x6 Christening Cake + 1 Dozen Cupcakes', price: 2100, image: '8x6CHRISTENING.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Fondant details except cross and butterfly', soldOut: false },
+            // Pastries (10)
+            { id: 'p1', category: 'pastries', name: '24 pcs Cheesebars', price: 250, image: 'CHEESEBARS.jpeg', description: 'Assorted Cheesebars', soldOut: false },
+            { id: 'p2', category: 'pastries', name: '24 pcs Brownies', price: 299, image: 'BROWNIES.jpeg', description: 'Rich Chocolate Brownies', soldOut: false },
+            { id: 'p3', category: 'pastries', name: '50 pcs Macaroons', price: 360, image: 'MACAROONS.jpeg', description: 'French Macaroons', soldOut: false },
+            { id: 'p4', category: 'pastries', name: '24 pcs Chantilly Bars', price: 360, image: 'CHANTILLYBARS.jpeg', description: 'Chantilly Cream Bars', soldOut: false },
+            { id: 'p5', category: 'pastries', name: '50 pcs Cheesebars (bitesize)', price: 370, image: 'CHEESEBARS2.jpeg', description: 'Mini Cheesebars', soldOut: false },
+            { id: 'p6', category: 'pastries', name: '50 pcs Brownies (bitesize)', price: 399, image: 'BROWNIES2.jpeg', description: 'Mini Brownies', soldOut: false },
+            { id: 'p7', category: 'pastries', name: '36 pcs Banana Cupcakes (size: 2oz)', price: 260, image: 'BANANACUPCAKES.jpeg', description: 'Banana Cupcakes', soldOut: false },
+            { id: 'p8', category: 'pastries', name: '25 pcs Crinkles', price: 195, image: 'CRINKLES.jpeg', description: 'Chocolate Crinkles', soldOut: false },
+            { id: 'p9', category: 'pastries', name: '1 Dozen Rossette Cupcakes (size: 2oz)', price: 250, image: 'ROSSETTE.jpeg', description: 'Rossette Cupcakes', note: 'Can choose color, please specify upon booking.', soldOut: false },
+            { id: 'p10', category: 'pastries', name: '1 Dozen Cakepops', price: 280, image: 'CAKEPOPS.jpeg', description: 'Cake Pops', soldOut: false },
+            // Father's Day Cakes (5)
+            { id: 'f1', category: 'fathersday', name: 'Fathers Day Bento Cake', price: 199, image: '6.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Fondant Topper', soldOut: false },
+            { id: 'f2', category: 'fathersday', name: 'Fathers Day Bento Cake with 5 Cupcakes', price: 450, image: '5.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Fondant Topper', soldOut: false },
+            { id: 'f3', category: 'fathersday', name: 'Fathers Day Bento Cake with 2 Cupcakes', price: 320, image: '2.png', description: 'Choco Moist Cake<br>Whipping Icing<br>Fondant Topper', soldOut: false },
+            { id: 'f4', category: 'fathersday', name: 'Fathers Day Bento Cake with Red Horse in Can', price: 350, image: 'REDHORSE.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            { id: 'f5', category: 'fathersday', name: 'Fathers Day Red Horse Theme Bento Cake', price: 199, image: 'FDREDHORSE.jpeg', description: 'Choco Moist Cake<br>Whipping Icing<br>Printed Topper', soldOut: false },
+            // Debut Cakes (4)
+            { id: 'd1', category: 'debut', name: '1 Tier Debut Cake Vintage Design #1', price: 1300, image: '1TIER1.jpeg', description: '8x4<br>Choco Moist Cake<br>Whipping Icing<br>Acrylic Happy 18th Topper', soldOut: false },
+            { id: 'd2', category: 'debut', name: '2 Tier Debut Cake Vintage Design #1', price: 2200, image: '182TIER.png', description: '8x4, 6x4<br>Choco Moist Cake<br>Whipping Icing<br>Acrylic Happy 18th Topper', note: 'Color can be change according to motif.', soldOut: false },
+            { id: 'd3', category: 'debut', name: '2 Tier Debut Cake Vintage Design #2', price: 2200, image: '2TIER2.jpeg', description: '8x4, 6x4<br>Choco Moist Cake<br>Whipping Icing<br>Acrylic Happy 18th Topper', note: 'Color can be change according to motif.', soldOut: false },
+            { id: 'd4', category: 'debut', name: '2 Tier Debut Cake Vintage Design #3', price: 2200, image: '2TIER3.jpeg', description: '8x4, 6x4<br>Choco Moist Cake<br>Whipping Icing<br>Acrylic Happy 18th Topper', note: 'Color can be change according to motif.', soldOut: false }
+        ];
+
+        let masterKey = '';
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            statusDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function showStats(shopData, customData) {
+            const statsCard = document.getElementById('statsCard');
+            const statsDiv = document.getElementById('stats');
+            
+            const shopCount = shopData ? shopData.length : 0;
+            const customCount = customData ? customData.length : 0;
+            
+            statsDiv.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${shopCount}</div>
+                    <div class="stat-label">Shop Menu Items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${customCount}</div>
+                    <div class="stat-label">Custom Cakes Items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${shopCount + customCount}</div>
+                    <div class="stat-label">Total Menu Items</div>
+                </div>
+            `;
+            statsCard.style.display = 'block';
+        }
+
+        async function createOrUpdateBin(binId, data, binName) {
+            const url = binId 
+                ? `https://api.jsonbin.io/v3/b/${binId}`
+                : 'https://api.jsonbin.io/v3/b';
+            
+            const method = binId ? 'PUT' : 'POST';
+            
+            const body = {
+                shop: data,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-Master-Key': masterKey,
+                'X-Bin-Name': binName
+            };
+            
+            if (!binId) {
+                headers['X-Bin-Private'] = 'false';
+            }
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: headers,
+                body: JSON.stringify(body)
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            const result = await response.json();
+            return result.metadata.id;
+        }
+
+        async function fetchBin(binId) {
+            const url = `https://api.jsonbin.io/v3/b/${binId}/latest`;
+            const response = await fetch(url, {
+                headers: {
+                    'X-Master-Key': masterKey
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch bin: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            return result.record;
+        }
+
+        async function initializeShopOnly() {
+            masterKey = document.getElementById('masterKey').value.trim();
+            if (!masterKey) {
+                showStatus('❌ Please enter your JSONBin Master Key', 'error');
+                return;
+            }
+            
+            let binId = document.getElementById('shopBinId').value.trim();
+            
+            showStatus('🔄 Initializing Shop Menu...', 'loading');
+            document.getElementById('initBtn').disabled = true;
+            document.getElementById('shopOnlyBtn').disabled = true;
+            document.getElementById('customOnlyBtn').disabled = true;
+            
+            try {
+                const newBinId = await createOrUpdateBin(binId || null, DEFAULT_SHOP, 'honeybaked-shop-menu');
+                showStatus(`✅ Shop Menu Initialized Successfully!\n\nBin ID: ${newBinId}\n\nTotal Items: ${DEFAULT_SHOP.length}\n\nAPI URL: https://api.jsonbin.io/v3/b/${newBinId}/latest`, 'success');
+                
+                document.getElementById('shopBinId').value = newBinId;
+                
+                // Also fetch custom if exists
+                const customBinId = document.getElementById('customBinId').value.trim();
+                if (customBinId) {
+                    try {
+                        const customData = await fetchBin(customBinId);
+                        showStats(DEFAULT_SHOP, customData.shop || []);
+                    } catch(e) {
+                        showStats(DEFAULT_SHOP, []);
+                    }
+                } else {
+                    showStats(DEFAULT_SHOP, []);
+                }
+            } catch (error) {
+                showStatus(`❌ Error initializing Shop Menu: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('initBtn').disabled = false;
+                document.getElementById('shopOnlyBtn').disabled = false;
+                document.getElementById('customOnlyBtn').disabled = false;
+            }
+        }
+
+        async function initializeCustomOnly() {
+            masterKey = document.getElementById('masterKey').value.trim();
+            if (!masterKey) {
+                showStatus('❌ Please enter your JSONBin Master Key', 'error');
+                return;
+            }
+            
+            let binId = document.getElementById('customBinId').value.trim();
+            
+            showStatus('🔄 Initializing Custom Cakes Menu...', 'loading');
+            document.getElementById('initBtn').disabled = true;
+            document.getElementById('shopOnlyBtn').disabled = true;
+            document.getElementById('customOnlyBtn').disabled = true;
+            
+            try {
+                const newBinId = await createOrUpdateBin(binId || null, DEFAULT_CUSTOM, 'honeybaked-custom-cakes');
+                showStatus(`✅ Custom Cakes Menu Initialized Successfully!\n\nBin ID: ${newBinId}\n\nTotal Items: ${DEFAULT_CUSTOM.length}\n\nAPI URL: https://api.jsonbin.io/v3/b/${newBinId}/latest`, 'success');
+                
+                document.getElementById('customBinId').value = newBinId;
+                
+                // Also fetch shop if exists
+                const shopBinId = document.getElementById('shopBinId').value.trim();
+                if (shopBinId) {
+                    try {
+                        const shopData = await fetchBin(shopBinId);
+                        showStats(shopData.shop || [], DEFAULT_CUSTOM);
+                    } catch(e) {
+                        showStats([], DEFAULT_CUSTOM);
+                    }
+                } else {
+                    showStats([], DEFAULT_CUSTOM);
+                }
+            } catch (error) {
+                showStatus(`❌ Error initializing Custom Cakes Menu: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('initBtn').disabled = false;
+                document.getElementById('shopOnlyBtn').disabled = false;
+                document.getElementById('customOnlyBtn').disabled = false;
+            }
+        }
+
+        async function initializeBoth() {
+            masterKey = document.getElementById('masterKey').value.trim();
+            if (!masterKey) {
+                showStatus('❌ Please enter your JSONBin Master Key', 'error');
+                return;
+            }
+            
+            let shopBinId = document.getElementById('shopBinId').value.trim();
+            let customBinId = document.getElementById('customBinId').value.trim();
+            
+            showStatus('🔄 Initializing both menus... This may take a moment.', 'loading');
+            document.getElementById('initBtn').disabled = true;
+            document.getElementById('shopOnlyBtn').disabled = true;
+            document.getElementById('customOnlyBtn').disabled = true;
+            
+            try {
+                // Initialize Shop
+                const newShopBinId = await createOrUpdateBin(shopBinId || null, DEFAULT_SHOP, 'honeybaked-shop-menu');
+                document.getElementById('shopBinId').value = newShopBinId;
+                
+                // Initialize Custom
+                const newCustomBinId = await createOrUpdateBin(customBinId || null, DEFAULT_CUSTOM, 'honeybaked-custom-cakes');
+                document.getElementById('customBinId').value = newCustomBinId;
+                
+                showStatus(`✅ BOTH Menus Initialized Successfully!\n\n📦 SHOP MENU\nBin ID: ${newShopBinId}\nItems: ${DEFAULT_SHOP.length}\nAPI: https://api.jsonbin.io/v3/b/${newShopBinId}/latest\n\n🎂 CUSTOM CAKES MENU\nBin ID: ${newCustomBinId}\nItems: ${DEFAULT_CUSTOM.length}\nAPI: https://api.jsonbin.io/v3/b/${newCustomBinId}/latest\n\n⚠️ IMPORTANT: Update your HTML files with these Bin IDs!`, 'success');
+                
+                showStats(DEFAULT_SHOP, DEFAULT_CUSTOM);
+            } catch (error) {
+                showStatus(`❌ Error initializing: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('initBtn').disabled = false;
+                document.getElementById('shopOnlyBtn').disabled = false;
+                document.getElementById('customOnlyBtn').disabled = false;
+            }
+        }
+
+        async function checkExisting() {
+            masterKey = document.getElementById('masterKey').value.trim();
+            if (!masterKey) {
+                showStatus('❌ Please enter your JSONBin Master Key', 'error');
+                return;
+            }
+            
+            const shopBinId = document.getElementById('shopBinId').value.trim();
+            const customBinId = document.getElementById('customBinId').value.trim();
+            
+            if (!shopBinId && !customBinId) {
+                showStatus('❌ Please enter at least one Bin ID to check', 'error');
+                return;
+            }
+            
+            showStatus('🔍 Checking existing bins...', 'loading');
+            
+            let shopData = null;
+            let customData = null;
+            let messages = [];
+            
+            if (shopBinId) {
+                try {
+                    const record = await fetchBin(shopBinId);
+                    shopData = record.shop || [];
+                    messages.push(`📦 Shop Bin: ${shopBinId} - ${shopData.length} items found`);
+                } catch (error) {
+                    messages.push(`❌ Shop Bin ${shopBinId}: ${error.message}`);
+                }
+            }
+            
+            if (customBinId) {
+                try {
+                    const record = await fetchBin(customBinId);
+                    customData = record.shop || [];
+                    messages.push(`🎂 Custom Bin: ${customBinId} - ${customData.length} items found`);
+                } catch (error) {
+                    messages.push(`❌ Custom Bin ${customBinId}: ${error.message}`);
+                }
+            }
+            
+            showStatus(messages.join('<br>'), shopData || customData ? 'success' : 'error');
+            
+            if (shopData || customData) {
+                showStats(shopData || [], customData || []);
+            }
+        }
+    </script>
+</body>
+</html>

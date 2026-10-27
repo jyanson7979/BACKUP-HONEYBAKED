@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="honeybaked_favicon.png">
+<title>Shop Available Products - Honeybaked</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{ font-family:Arial,sans-serif; background:linear-gradient(165deg,#FFF9F0,#FFEFD5); }
+header{ text-align:center; padding:20px; background:rgba(255,255,255,0.9); position:sticky; top:0; z-index:10; }
+header img{ height:70px; }
+.container{ max-width:1200px; margin:auto; padding:30px 20px; }
+.category{ background:#fff; padding:25px; border-radius:20px; margin-bottom:25px; box-shadow:0 10px 30px rgba(0,0,0,.06); }
+.category h2{ color:#6F4E37; margin-bottom:15px; }
+.menu-item{ display:flex; justify-content:space-between; align-items:center; background:#F8F4EF; padding:15px; border-radius:12px; margin-bottom:10px; position:relative; transition:0.2s; }
+.menu-item:hover{ background:#fff; border:1px solid #D4A574; }
+.menu-item.sold-out-item{ opacity:0.5; }
+.item-left{ display:flex; gap:15px; align-items:center; }
+.item-left img{ width:80px; height:80px; border-radius:12px; object-fit:cover; cursor:pointer; }
+.name{ font-weight:bold; }
+.price{ color:#6F4E37; font-weight:bold; }
+.sold-out-banner{ display:inline-block; background:#e05252; color:#fff; font-size:0.68rem; font-weight:700; letter-spacing:1.2px; padding:3px 10px; border-radius:50px; text-transform:uppercase; margin-top:4px; }
+.add-btn{ background:#2C1810; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; transition:0.2s; }
+.add-btn:disabled{ background:#ccc; color:#999; cursor:not-allowed; }
+.order-form{ background:#fff; padding:25px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,.08); margin-top:30px; }
+.form-group{ margin-bottom:15px; }
+input, textarea{ width:100%; padding:12px; border:1px solid #ddd; border-radius:10px; font-family:Arial,sans-serif; }
+.modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:9999; }
+.modal img{ max-width:90%; max-height:90%; border-radius:15px; }
+.close{ position:absolute; top:20px; right:30px; font-size:40px; color:white; cursor:pointer; }
+.info-modal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); justify-content:center; align-items:center; z-index:10000; }
+.info-modal-content{ background:#fff; max-width:500px; width:90%; padding:25px; border-radius:15px; position:relative; }
+.info-modal-close{ position:absolute; top:10px; right:15px; font-size:25px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<header><img src="LOGO.jpg"></header>
+
+<div class="container">
+    <p>Products available today at our physical shop and can be picked up right away. Our staff will do their best to confirm your order and notify you via text message.</p>
+    <br>
+
+      <div style="margin-bottom:20px;">
+    <input 
+        type="text" 
+        id="searchBox" 
+        placeholder="Search cakes, coffee, drinks..." 
+        onkeyup="filterMenu()" 
+        style="width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;"
+    >
+</div>
+
+    <!-- Dynamic menu injected here -->
+    <div id="menuContainer"></div>
+
+    <!-- ORDER SUMMARY -->
+    <div class="order-form">
+        <h2>Order Summary</h2><br>
+        <div id="orderSummary"><p>No items added yet.</p></div>
+        <br>
+        <h3>Total: ₱<span id="totalAmount">0</span></h3>
+    </div>
+
+    <!-- CHECKOUT FORM -->
+    <form id="checkoutForm" class="order-form" action="https://formslist.com/f/2ibW4pVMji9E" method="POST">
+    <input type="hidden" name="_subject" value="New Shop Order (Available Today)">
+    <input type="hidden" name="form_type" value="shop_order">
+    <input type="hidden" name="Ordered Items" id="orderedItems">
+
+        <h2>Order Form</h2><br>
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" name="name" required>
+        </div>
+        <div class="form-group">
+            <label>Contact</label>
+            <input type="tel" name="contact" required>
+        </div>
+        <div class="form-group">
+            <label>Dedication/Lettering (For Cakes Only)</label>
+            <textarea name="message" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Enter GCash Reference Number (20% down payment of the total order amount is required)</label>
+            <input type="text" name="gcash_reference_number" required>
+        </div>
+       <button type="submit" id="submitBtn" class="add-btn" style="width:100%;padding:14px;font-size:1rem;font-weight:bold;border-radius:12px;">Confirm Your Order</button>
+     </form>
+    </div>
+
+<!-- IMAGE MODAL -->
+<div class="modal" id="modal" onclick="closeModal()">
+    <span class="close">&times;</span>
+    <img id="modalImg">
+</div>
+
+<!-- INFO MODAL -->
+<div class="info-modal" id="reminderModal" onclick="closeReminderModal()">
+    <div class="info-modal-content" onclick="event.stopPropagation()">
+        <span class="info-modal-close" onclick="closeReminderModal()">&times;</span>
+        <h2 style="color:#d4af37;margin-bottom:25px;">📌 Important Reminders</h2>
+        <div style="background:#fafafa;padding:20px;border-radius:12px;margin-bottom:15px;">
+            <h3 style="color:#d4af37;margin-bottom:12px;">Down Payment</h3>
+            <p><strong>20%</strong> of the total order amount is required.</p><br>
+            <p>For orders below ₱500, a ₱100 down payment is automatically required.</p><br>
+            <p>You can pay the remaining balance when you pick up your order.</p>
+        </div>
+        <div style="background:#fafafa;padding:20px;border-radius:12px;margin-bottom:15px;">
+            <h3 style="color:#d4af37;margin-bottom:12px;">Mode of Payment</h3>
+            <div style="padding:15px;border:2px solid #d4af37;border-radius:10px;">
+                <h4>GCash</h4>
+                <p><b>0997 102 6856</b></p>
+                <p>Mirralene O</p>
+            </div>
+        </div>
+        <button onclick="closeReminderModal()" style="width:100%;padding:12px;background:#d4af37;border:none;border-radius:10px;color:#fff;font-weight:bold;cursor:pointer;">I Understand</button>
+    </div>
+</div>
+
+<script>
+const API = '/api/menu?type=shop';
+
+const CAT_LABELS = {
+    bento:'Bento Cakes', drip:'Drip Cakes', vintage:'Vintage Cakes',
+    coffee:'Coffee', noncoffee:'Non Coffee',
+};
+
+/* ═══ DEFAULT 23 ITEMS ═══ */
+const DEFAULT_SHOP = [
+    {id:'sc1',  category:'bento',     name:'Bento Cake (Design 1)',                          price:185, image:'BENTO1.jpeg'},
+    {id:'sc2',  category:'bento',     name:'Coquette Bento',                                price:185, image:'COQUETTEBENTO.jpeg'},
+    {id:'sc3',  category:'bento',     name:'Bento Cake (Design 2)',                          price:185, image:'BENTO2.jpeg'},
+    {id:'sc4',  category:'bento',     name:'Bento Cake (Design 3)',                          price:185, image:'BENTO3.jpeg'},
+    {id:'sd1',  category:'drip',      name:'Drip Cake (6x4)',                               price:650, image:'DRIPCAKE.jpeg'},
+    {id:'sv1',  category:'vintage',   name:'Black Forest (5x3)',                            price:420, image:'BLACKFOREST.jpg'},
+    {id:'sv2',  category:'vintage',   name:'White Vintage with Black Ribbon (5x3)',         price:399, image:'WHITEVINTAGECAKE1.jpg'},
+    {id:'sv3',  category:'vintage',   name:'White Vintage with Red Ribbon (5x3)',           price:399, image:'WHITEVINTAGECAKE2.jpg'},
+    {id:'sv4',  category:'vintage',   name:'Blue Vintage (5x3)',                            price:399, image:'BLUEVINTAGECAKE4.jpeg'},
+    {id:'sv5',  category:'vintage',   name:'Purple Vintage (5x3)',                          price:399, image:'PURPLEVINTAGECAKE5.jpeg'},
+    {id:'sv6',  category:'vintage',   name:'Pink Vintage (5x3)',                            price:399, image:'PINKVINTAGECAKE3.jpeg'},
+    {id:'sco1', category:'coffee',    name:'Coffee Latte',                                  price:59,  image:'COFFEE_LATTE.jpg'},
+    {id:'sco2', category:'coffee',    name:'Spanish Latte',                                 price:59,  image:'SPANISH_LATTE.jpg'},
+    {id:'sco3', category:'coffee',    name:'Mocha Latte',                                   price:65,  image:'MOCHA_LATTE.jpg'},
+    {id:'sco4', category:'coffee',    name:'Vanilla Latte',                                 price:65,  image:'VANILLA_LATTE.jpg'},
+    {id:'sco5', category:'coffee',    name:'Caramel Macchiato',                             price:65,  image:'CARAMEL_MACCHIATO.jpg'},
+    {id:'snc1', category:'noncoffee', name:'Strawberry Milk',                               price:59,  image:'STRAWBERRY_MILK.jpg'},
+    {id:'snc2', category:'noncoffee', name:'Blueberry Milk',                                price:59,  image:'BLUEBERRY_MILK.jpg'},
+    {id:'snc3', category:'noncoffee', name:'Mango Milk',                                    price:59,  image:'MANGO_MILK.jpg'},
+    {id:'snc4', category:'noncoffee', name:'Chocolate Milk',                                price:65,  image:'CHOCOLATE_MILK.jpg'},
+    {id:'snc5', category:'noncoffee', name:'Choco Berry Milk',                              price:68,  image:'CHOCO_BERRY.jpg'},
+    {id:'snc6', category:'noncoffee', name:'Matcha Latte',                                  price:68,  image:'MATCHA_LATTE.jpg'},
+    {id:'snc7', category:'noncoffee', name:'Strawberry Matcha Milk',                        price:75,  image:'STRAWBERRY_MATCHA.jpg'},
+];
+
+let menuData = [];
+let cart     = [];
+
+/* ═══ LOAD ═══ */
+async function loadMenu(){
+    try {
+        const res  = await fetch(API);
+        const data = await res.json();
+        // FIXED: para mag-work sa Vercel API na nagre-return ng direct array
+        menuData = Array.isArray(data) ? data : (data.shop || DEFAULT_SHOP);
+        console.log('Shop items loaded:', menuData.length);
+    } catch(e) {
+        console.error('Load error:', e);
+        menuData = DEFAULT_SHOP;
+    }
+    renderMenu();
+}
+
+/* ═══ RENDER ═══ */
+function renderMenu(){
+    const search = document.getElementById('searchBox').value.toLowerCase();
+    const cats = Object.keys(CAT_LABELS);
+    let html = '';
+
+    cats.forEach(cat => {
+        let items = menuData.filter(m => m.category === cat);
+        
+        // Search filter
+        if(search){
+            items = items.filter(i => i.name.toLowerCase().includes(search));
+        }
+        
+        if(!items.length) return;
+        html += `<div class="category"><h2>${CAT_LABELS[cat]}</h2>`;
+        items.forEach(item => {
+            const soldBanner = item.soldOut ? `<div class="sold-out-banner">🚫 Sold Out</div>` : '';
+            html += `
+            <div class="menu-item ${item.soldOut?'sold-out-item':''}">
+                <div class="item-left">
+                    <img src="${item.image}" onclick="openModal('${item.image}')" onerror="this.src='https://via.placeholder.com/80x80?text=No+Image'">
+                    <div>
+                        <div class="name">${item.name}</div>
+                        ${soldBanner}
+                        <br>
+                        <div class="price">₱${Number(item.price).toLocaleString()}</div>
+                    </div>
+                </div>
+                <button class="add-btn" ${item.soldOut?'disabled':''} onclick="addToCart('${item.name.replace(/'/g,"\\'")}', ${item.price})">
+                    ${item.soldOut ? 'Sold Out' : 'Add'}
+                </button>
+            </div>`;
+        });
+        html += `</div>`;
+    });
+
+    document.getElementById('menuContainer').innerHTML = html || '<p style="text-align:center;color:#999;padding:40px;">No items available.</p>';
+}
+
+function filterMenu(){
+    renderMenu(); // Re-render na lang para sa search
+}
+
+/* ═══ CART ═══ */
+function addToCart(name, price){
+    cart.push({ name, price });
+    updateSummary();
+}
+function removeFromCart(index){
+    cart.splice(index,1);
+    updateSummary();
+}
+function updateSummary(){
+    const summary = document.getElementById('orderSummary');
+    const totalEl = document.getElementById('totalAmount');
+    if(cart.length===0){ summary.innerHTML='<p>No items added yet.</p>'; totalEl.textContent='0'; return; }
+    let html='', total=0;
+    cart.forEach((item,i)=>{
+        total+=item.price;
+        html+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:10px;background:#F8F4EF;border-radius:8px;">
+            <span>${i+1}. ${item.name}</span>
+            <div style="display:flex;align-items:center;gap:15px;">
+                <span>₱${item.price.toLocaleString()}</span>
+                <button type="button" onclick="removeFromCart(${i})" style="background:#d32f2f;color:#fff;border:none;padding:4px 8px;font-size:14px;border-radius:6px;cursor:pointer;">×</button>
+            </div>
+        </div>`;
+    });
+    summary.innerHTML=html;
+    totalEl.textContent=total.toLocaleString();
+}
+function prepareOrder(){
+    if(cart.length===0){ alert('Please add at least one item.'); return false; }
+    let txt='', total=0;
+    cart.forEach((item,i)=>{ txt+=`${i+1}. ${item.name} - ₱${item.price}\n`; total+=item.price; });
+    txt+=`\nTotal Amount: ₱${total.toLocaleString()}`;
+    document.getElementById('orderedItems').value=txt;
+    return true;
+}
+
+/* ═══ SUBMIT + REDIRECT ═══ */
+let isSubmitting = false;
+
+document.getElementById('checkoutForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    if(isSubmitting) return;
+    if(!prepareOrder()) return;   // nag-check ug nag-fill sa Ordered Items
+
+    isSubmitting = true;
+    const form = e.target;
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+        const res = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' }
+        });
+        if(!res.ok) throw new Error('Bad response');
+        window.location.href = 'https://honeybaked.shop/thankyou.html';
+    } catch(err) {
+        alert('Naay problema sa pag-submit. Palihug sulayi pag-usab.');
+        isSubmitting = false;
+        btn.disabled = false;
+        btn.textContent = 'Confirm Your Order';
+    }
+});
+
+/* ═══ MODALS ═══ */
+function openModal(src){ document.getElementById('modal').style.display='flex'; document.getElementById('modalImg').src=src; }
+function closeModal(){ document.getElementById('modal').style.display='none'; }
+function closeReminderModal(){ document.getElementById('reminderModal').style.display='none'; }
+
+/* ═══ INIT ═══ */
+window.addEventListener('load', function(){
+    document.getElementById('reminderModal').style.display='flex';
+    loadMenu();
+});
+</script>
+
+</body>
+</html>

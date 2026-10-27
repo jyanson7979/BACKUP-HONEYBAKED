@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <title>Honeybaked - Cakes and Pastries Shop</title>
+
+    <meta property="og:type" content="website">
+<meta property="og:title" content="Honeybaked Honey Cakes and Pastries Corner">
+<meta property="og:description" content="Visit Honeybaked Now!">
+<meta property="og:url" content="https://honeybaked.shop/index.html">
+<meta property="og:image" content="https://honeybaked.shop/cakeshop-interior.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Honeybaked Honey Cakes and Pastries Corner Interior">
+<meta name="twitter:card" content="summary_large_image">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Theme color (para sa browser address bar) -->
+    <meta name="theme-color" content="#f5a623">
+    
+    <!-- PWA Icons (para sa installation) -->
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/android-chrome-512x512.png">
+    
+    <!-- iOS / Apple Home Screen Icon -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    
+    <!-- iOS Safari Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Honeybaked">
+    
+    <!-- Regular Favicon (para sa browser tabs - pwede ra nimo biyaan) -->
+    <link rel="icon" type="image/png" href="honeybaked_favicon.png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --honey: #C17A3A;
+            --dark: #3D2817;
+            --cream: #F5EBE0;
+            --white: #FFFFFF;
+            --accent: #8B4513;
+            --gold: #D4AF37;
+            --gcash-blue: #007DFF;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: var(--white);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 20px;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: var(--white);
+            padding: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section {
+            text-align: center;
+        }
+
+        .logo-section img {
+            height: 70px;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-image img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .hero-text h1 {
+            font-size: 56px;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        .hero-text .highlight {
+            color: var(--honey);
+            font-style: italic;
+        }
+
+        .hero-text h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .hero-text h3 {
+            font-size: 18px;
+            font-weight: normal;
+            line-height: 1.7;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            padding: 14px 32px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            transition: 0.2s;
+            background: var(--honey);
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+
+        .cta-button:hover {
+            background: var(--accent);
+        }
+
+        /* ===== LOCATION SECTION ===== */
+        .location-section {
+            padding: 80px 20px;
+            background: var(--white);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-eyebrow {
+            display: inline-block;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .section-header h2 {
+            font-size: 48px;
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        .location-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .location-card {
+            background: var(--cream);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .location-card img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 340px;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .map-container {
+            margin: 30px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 2 / 1;
+            max-height: 380px;
+        }
+
+        .map-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+        }
+
+        .contact-section {
+            margin-top: 40px;
+        }
+
+        .contact-section h3 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: var(--dark);
+        }
+
+        .contact-item {
+            background: white;
+            padding: 24px 16px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .contact-item strong {
+            display: block;
+            font-size: 18px;
+            margin: 12px 0;
+            color: var(--dark);
+        }
+
+        .contact-item a {
+            display: block;
+            color: var(--honey);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-item a:hover {
+            color: var(--accent);
+        }
+
+        /* ===== PAYMENT TRIGGER SECTION ===== */
+        .payment-trigger-section {
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #fffaf0, #ffffff);
+            text-align: center;
+        }
+
+        .payment-trigger-btn {
+            background: linear-gradient(135deg, #D4AF37, #f4d03f);
+            color: #000;
+            border: none;
+            padding: 18px 48px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+            transition: all 0.3s ease;
+            font-family: Arial, sans-serif;
+        }
+
+        .payment-trigger-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.35);
+        }
+
+        .payment-trigger-btn:active {
+            transform: translateY(0);
+        }
+
+        /* ===== PAYMENT INSTRUCTIONS SECTION ===== */
+        .payment-instructions-section {
+            padding: 60px 20px;
+            background: var(--cream);
+        }
+
+        .instructions-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .instructions-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .instructions-card h3 {
+            font-size: 28px;
+            color: var(--dark);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .instructions-card ol {
+            list-style: decimal;
+            padding-left: 24px;
+            margin-bottom: 30px;
+        }
+
+        .instructions-card li {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+
+        .contact-methods {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            border-top: 2px solid #e0e0e0;
+            margin-top: 24px;
+        }
+
+        .contact-methods p {
+            font-size: 15px;
+            color: #555;
+            margin: 0 0 16px 0;
+        }
+
+        .btn-message-fb {
+            background: linear-gradient(135deg, #1877F2, #0A66C2);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.2);
+        }
+
+        .btn-message-fb:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(24, 119, 242, 0.3);
+        }
+
+        /* ===== FULLSCREEN GCASH MODAL (CLEAN, FULL-SIZE QR) ===== */
+        .gcash-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 16px;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .gcash-modal-content {
+            background: transparent;
+            max-width: 95vw;
+            width: auto;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: visible;
+        }
+
+        .gcash-modal-close {
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            background: white;
+            border: none;
+            font-size: 28px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            z-index: 10001;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .gcash-modal-close:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+            color: #000;
+        }
+
+        .gcash-qr-section {
+            text-align: center;
+            background: white;
+            border-radius: 32px;
+            padding: 24px 24px 32px 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            transition: all 0.2s;
+        }
+
+        .gcash-qr-frame {
+            background: #fff;
+            padding: 0;
+            border-radius: 24px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gcash-qr-image {
+            width: min(85vw, 85vh, 500px);
+            height: auto;
+            aspect-ratio: 1 / 1;
+            border-radius: 20px;
+            display: block;
+            object-fit: contain;
+            background: white;
+        }
+
+        .download-qr-btn {
+            background: linear-gradient(135deg, #007DFF, #0066FF);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: Arial, sans-serif;
+            width: auto;
+            min-width: 220px;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 18px rgba(0, 125, 255, 0.25);
+        }
+
+        .download-qr-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(0, 125, 255, 0.35);
+            background: linear-gradient(135deg, #1a86ff, #0055dd);
+        }
+
+        .download-qr-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 640px) {
+            .gcash-modal-content {
+                max-width: 98vw;
+            }
+
+            .gcash-qr-section {
+                padding: 20px 20px 28px 20px;
+                border-radius: 28px;
+            }
+
+            .gcash-qr-image {
+                width: min(82vw, 82vh, 460px);
+            }
+
+            .gcash-modal-close {
+                top: -12px;
+                right: -12px;
+                width: 44px;
+                height: 44px;
+                font-size: 26px;
+            }
+
+            .download-qr-btn {
+                padding: 12px 24px;
+                font-size: 15px;
+                min-width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gcash-qr-section {
+                padding: 16px 16px 24px 16px;
+                border-radius: 24px;
+            }
+
+            .gcash-qr-image {
+                width: min(88vw, 88vh, 400px);
+                border-radius: 18px;
+            }
+
+            .gcash-modal-close {
+                top: -10px;
+                right: -8px;
+                width: 40px;
+                height: 40px;
+                font-size: 24px;
+            }
+
+            .download-qr-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+                min-width: 180px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .gcash-qr-image {
+                width: min(92vw, 92vh, 350px);
+            }
+            .gcash-qr-section {
+                padding: 12px 12px 20px 12px;
+            }
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: whitesmoke;
+            color: black;
+            text-align: center;
+            padding: 32px 24px;
+            margin-top: 40px;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* ===== NAVIGATION ===== */
+        nav {
+            background: var(--dark);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--cream);
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.2s;
+            font-family: Arial, sans-serif;
+        }
+
+        nav a:hover {
+            color: var(--honey);
+        }
+
+        /* ===== RESPONSIVE GENERAL ===== */
+        @media (max-width: 900px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 30px;
+            }
+
+            .hero-image {
+                order: -1;
+            }
+
+            .hero-text h1 {
+                font-size: 40px;
+            }
+
+            .hero-text h2 {
+                font-size: 22px;
+            }
+
+            .hero-text h3 {
+                font-size: 16px;
+            }
+
+            .cta-buttons {
+                justify-content: center;
+            }
+
+            nav .container {
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .instructions-card {
+                padding: 30px 24px;
+            }
+
+            .instructions-card h3 {
+                font-size: 24px;
+            }
+
+            .location-card {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .payment-instructions-section {
+                padding: 40px 15px;
+            }
+
+            .instructions-card {
+                padding: 24px 18px;
+                border-radius: 14px;
+            }
+
+            .instructions-card h3 {
+                font-size: 20px;
+                margin-bottom: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 50px 0;
+            }
+
+            .hero-text h1 {
+                font-size: 32px;
+            }
+
+            .hero-text h2 {
+                font-size: 18px;
+            }
+
+            .hero-text h3 {
+                font-size: 14px;
+            }
+
+            .cta-button {
+                width: 100%;
+                text-align: center;
+            }
+
+            .logo-section img {
+                height: 55px;
+            }
+
+            .payment-trigger-btn {
+                padding: 14px 28px;
+                font-size: 16px;
+                width: 100%;
+                max-width: 280px;
+            }
+
+            .section-header h2 {
+                font-size: 32px;
+            }
+
+            .contact-methods {
+                padding: 18px;
+            }
+
+            .btn-message-fb {
+                width: 100%;
+            }
+        }
+
+        /* ===== CONTACT GRID (FINAL) ===== */
+        .location-card,
+        .contact-section {
+            box-sizing: border-box;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 15px;
+            width: 100%;
+        }
+
+        .contact-item {
+            min-width: 0;
+            overflow: hidden;
+            padding: 22px 12px;
+        }
+
+        .contact-item a {
+            display: block;
+            max-width: 100%;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        /* MOBILE AND TABLET: 1 column, stacked */
+        @media screen and (max-width: 900px) {
+            .location-card {
+                padding: 20px 14px;
+            }
+
+            .location-card img {
+                max-height: 260px;
+                margin-bottom: 20px;
+            }
+
+            .map-container {
+                aspect-ratio: 1 / 1;
+                max-height: 380px;
+                margin: 20px 0;
+            }
+
+            .contact-grid {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 14px;
+            }
+
+            .contact-item {
+                width: 100%;
+                padding: 20px 14px;
+            }
+
+            .contact-item a {
+                font-size: 14px;
+            }
+
+            .contact-section h3 {
+                font-size: 23px;
+                overflow-wrap: break-word;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .location-section {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .location-card {
+                padding: 16px 12px;
+            }
+
+            .contact-item {
+                padding: 16px 10px;
+            }
+
+            .contact-item strong {
+                font-size: 16px;
+                margin: 8px 0;
+            }
+
+            .contact-item a {
+                font-size: 13px;
+            }
+        }
+
+        .contact-item,
+        .contact-item a,
+        .contact-item strong {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="container">
+        <div class="logo-section">
+            <img src="LOGO.jpg" alt="Honeybaked Logo">
+        </div>
+    </div>
+</header>
+
+<!-- HERO SECTION -->
+<section class="hero" id="home">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-image">
+                <img src="PROFESSIONALWEBSITE.jpg" alt="Honeybaked Cake">
+            </div>
+
+            <div class="hero-text">
+                <h1>Honey<span class="highlight">baked</span></h1>
+
+                <h2>
+                    Every Celebration Deserves a <span style="color: goldenrod;">Honeybaked Touch.</span>
+                </h2>
+
+                <h3>
+                    Looking for a cake shop that offers customized cakes at budget-friendly prices?<br><br>
+                    <span style="color: black;">
+                        Visit Honeybaked Cakes and Pastries Shop — we create personalized cakes for every special occasion!
+                    </span>
+                </h3>
+
+                <div class="cta-buttons">
+                    <a href="orders.html" class="cta-button"> Order Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- LOCATION SECTION -->
+<section class="location-section" id="location">
+    <div class="container">
+        <div class="location-content">
+            <div class="section-header">
+                <span class="section-eyebrow">📍 Find Us</span>
+                <h2>Visit Our <span class="highlight">Cake Shop</span></h2>
+            </div>
+
+                <div class="map-container">
+                   <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15807.595362333539!2d125.07622895541991!3d7.905636099999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32ff190006553ce7%3A0x8a271de9e21e70cb!2sHoneybaked%20Cakes%20and%20Pastries%20Shop!5e0!3m2!1sen!2sph!4v1793089959663!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                </div>
+
+                <div class="contact-section">
+                    <h3>Get in Touch with <span class="highlight">Honeybaked</span></h3>
+
+                    <div class="contact-grid">
+                        <div class="contact-item">
+                            <strong>Facebook</strong>
+                            <a href="https://www.facebook.com/profile.php?id=100064072902043" target="_blank" rel="noopener">
+                                Honey Cakes and Pastries Corner
+                            </a>
+                        </div>
+
+                        <div class="contact-item">
+                            <strong>Phone</strong>
+                            <a href="tel:09974579038">0997 457 9038</a>
+                        </div>
+
+                        <div class="contact-item">
+                            <strong>Email</strong>
+                            <a href="mailto:honeybaked2024@gmail.com">honeybaked2024@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PAYMENT SECTION - TRIGGER BUTTON -->
+<section class="payment-trigger-section" id="payment">
+    <div class="container">
+        <button id="openPaymentModal" class="payment-trigger-btn">
+             Scan / Download QR
+        </button>
+    </div>
+</section>
+
+<!-- PAYMENT INSTRUCTIONS SECTION -->
+<section class="payment-instructions-section">
+    <div class="container">
+        <div class="instructions-content">
+            <div class="instructions-card">
+                <h3>GCash Payment</h3>
+                <ol>
+                    <li>Open your <strong>GCash app</strong></li>
+                    <li>Tap <strong>"Scan QR"</strong></li>
+                    <li>Point at the QR code</li>
+                    <li>Enter amount & confirm</li>
+                    <li>Send screenshot to us</li>
+                </ol>
+                
+                <div class="contact-methods">
+                    <p><strong>Send receipt via:</strong></p>
+                    <button class="btn-message-fb">Message us on Facebook</button>
+                    <p style="margin-top: 12px; font-size: 14px;">or Text <strong>0997 457 9038</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FULL SCREEN GCASH MODAL — CLEAN, FULL-SIZE QR ===== -->
+<div id="gcashModal" class="gcash-modal-overlay" style="display: none;">
+    <div class="gcash-modal-content">
+        <button class="gcash-modal-close" id="closeModal">✕</button>
+
+        <div class="gcash-qr-section">
+            <div class="gcash-qr-frame">
+                <img id="qrImage" src="OWNEROFFICIALGCASHQRCODE.jpg" alt="GCash QR Code - Honeybaked" class="gcash-qr-image">
+            </div>
+            
+            <button id="downloadQRBtn" class="download-qr-btn">
+                ⬇ Download QR Code
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <p>&copy; 2026 Honeybaked Cakes & Pastries Shop.</p>
+    <br>
+    <p>Developed by Yanson Tech Solutions.</p>
+</footer>
+
+<script>
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js')
+                .then(function(registration) {
+                    console.log('Service Worker registered successfully:', registration);
+                })
+                .catch(function(error) {
+                    console.log('Service Worker registration failed:', error);
+                });
+        });
+    } else {
+        console.log('Service Worker not supported');
+    }
+
+    // ===== GCASH MODAL: FULL SIZE QR (clean modal) =====
+    const openModalBtn = document.getElementById('openPaymentModal');
+    const gcashModal = document.getElementById('gcashModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const downloadQR = document.getElementById('downloadQRBtn');
+    const qrImgElement = document.getElementById('qrImage');
+
+    // Open modal
+    openModalBtn.addEventListener('click', () => {
+        gcashModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    });
+
+    // Close modal via X button
+    closeModalBtn.addEventListener('click', () => {
+        gcashModal.style.display = 'none';
+        document.body.style.overflow = '';
+    });
+
+    // Close modal when clicking on overlay (background)
+    gcashModal.addEventListener('click', (e) => {
+        if (e.target === gcashModal) {
+            gcashModal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Close with ESC key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && gcashModal.style.display === 'flex') {
+            gcashModal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Download QR Code — Robust method, preserves full quality
+    downloadQR.addEventListener('click', () => {
+        const originalText = downloadQR.innerHTML;
+        downloadQR.innerHTML = '⏳ Processing...';
+        downloadQR.disabled = true;
+        downloadQR.style.opacity = '0.8';
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+            
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'Honeybaked_GCash_QR.jpg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                downloadQR.innerHTML = '✅ Downloaded!';
+                downloadQR.style.background = 'linear-gradient(135deg, #34C759, #30B450)';
+                setTimeout(() => {
+                    downloadQR.innerHTML = originalText;
+                    downloadQR.style.background = 'linear-gradient(135deg, #007DFF, #0066FF)';
+                    downloadQR.disabled = false;
+                    downloadQR.style.opacity = '1';
+                }, 2000);
+            }, 'image/jpeg', 0.95);
+        };
+        
+        img.onerror = () => {
+            const fallbackLink = document.createElement('a');
+            fallbackLink.href = qrImgElement.src;
+            fallbackLink.download = 'Honeybaked_GCash_QR.jpg';
+            document.body.appendChild(fallbackLink);
+            fallbackLink.click();
+            document.body.removeChild(fallbackLink);
+            
+            downloadQR.innerHTML = '✅ Saved!';
+            downloadQR.style.background = 'linear-gradient(135deg, #34C759, #30B450)';
+            setTimeout(() => {
+                downloadQR.innerHTML = originalText;
+                downloadQR.style.background = 'linear-gradient(135deg, #007DFF, #0066FF)';
+                downloadQR.disabled = false;
+                downloadQR.style.opacity = '1';
+            }, 2000);
+        };
+        
+        img.src = qrImgElement.src;
+    });
+
+    // Facebook messenger button
+    const fbMessageBtn = document.querySelector('.btn-message-fb');
+    if (fbMessageBtn) {
+        fbMessageBtn.addEventListener('click', () => {
+            window.open('https://www.facebook.com/profile.php?id=100064072902043', '_blank');
+        });
+    }
+</script>
+
+<!-- PWA Install Button -->
+<button id="installBtn" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: #f5a623; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; z-index: 1000; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+     Install app
+</button>
+
+<script>
+    // PWA Installation Code
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('beforeinstallprompt fired');
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+    });
+    
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response: ${outcome}`);
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+    });
+    
+    window.addEventListener('appinstalled', () => {
+        console.log('Honeybaked app installed');
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+    });
+</script>
+
+</body>
+</html>
